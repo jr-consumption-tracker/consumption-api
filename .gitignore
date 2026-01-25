@@ -1,11 +1,2 @@
-# Src specifics
-/src/vendor/
-/src/.env
-/src/storage/logs/*.log
-/src/storage/uploads/*
-!/src/storage/uploads/.gitkeep
-
 # IDE
-.DS_Store
-.idea/
 .vscode/
