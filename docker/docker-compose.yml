@@ -5,9 +5,11 @@ services:
       dockerfile: Dockerfile
     container_name: consumption-tracker-api
     volumes:
-      - ../src:/var/www/html/api # Mountuje src/ složku
+      - ../src:/var/www/html/api
     networks:
       - consumption-tracker-network
+    depends_on:
+      - db
 
   nginx:
     image: nginx:latest
@@ -16,7 +18,7 @@ services:
       - "3010:80"
       - "3443:443"
     volumes:
-      - ../src:/var/www/html # Mountuje src/ složku
+      - ../src:/var/www/html
       - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
       - ./certificates:/etc/nginx/certificates:ro
     depends_on:
