@@ -16,7 +16,7 @@ The project is divided into separate repositories for better organization and ma
 
 Backend REST API built with PHP that handles all business logic, data processing, and database operations.
 
-- **Tech Stack**: PHP 8.3+, MySQL
+- **Tech Stack**: PHP 8.4+, MySQL
 - **Purpose**: Core API for consumption data management
 - **Structure**:
   - `/docker` - Docker development environment
