@@ -1,3 +1,15 @@
+## Static code analysis
+
+For instructions on how to check your code for errors using PHPStan (static analysis), see [STATIC_ANALYSIS.md](./STATIC_ANALYSIS.md).
+
+Basic usage:
+
+```
+vendor/bin/phpstan analyse app
+```
+
+See the documentation file for more details and options.
+
 # JR Consumption Tracker
 
 A comprehensive consumption tracking system for monitoring and managing utilities and resources usage.
@@ -22,18 +34,45 @@ Backend REST API built with PHP that handles all business logic, data processing
   - `/docker` - Docker development environment
   - `/src` - Complete API application code
 
-#### `consumption-web`
-
-Frontend monorepo containing both the public web application and admin interface.
-
-- **Tech Stack**: React/Next.js (monorepo setup)
-- **Purpose**: User-facing applications
-- **Structure**:
-  - `/apps/web` - Public consumption tracking interface
-  - `/apps/admin` - Administration dashboard
-  - `/packages` - Shared UI components and utilities
-
 ## 🚀 Getting Started
+
+### Generování aplikačního klíče
+
+Pro vygenerování nového aplikačního klíče spusť v adresáři `src/api` příkaz:
+
+```bash
+php tracker app:generate-key
+```
+
+Tento příkaz vytvoří a uloží nový klíč do konfiguračního souboru podle nastavení projektu.
+
+## Docker commands
+
+For a list of useful Docker commands for development and troubleshooting, see [DOCKER_COMMANDS.md](./DOCKER_COMMANDS.md).
+
+Basic examples:
+
+```
+sudo docker compose start
+sudo docker compose stop
+sudo docker compose exec app bash
+```
+
+See the documentation file for more details and additional commands.
+
+## Database migrations
+
+For all commands related to database migrations and Docker usage, see [MIGRATIONS.md](./MIGRATIONS.md).
+
+Basic migration workflow (inside Docker):
+
+```
+sudo docker compose exec app php tracker migrations:diff
+sudo docker compose exec app php tracker migrations:migrate
+sudo docker compose exec app php tracker migrations:status
+```
+
+See the documentation file for more details and additional commands.
 
 ### Prerequisites
 

@@ -4,8 +4,10 @@ services:
       context: ./
       dockerfile: Dockerfile
     container_name: consumption-tracker-api
+    restart: always
+    working_dir: /var/www/html/api/
     volumes:
-      - ../src:/var/www/html/api
+      - ../src:/var/www/html
     networks:
       - consumption-tracker-network
     depends_on:
@@ -33,7 +35,7 @@ services:
       - "3307:3306"
     environment:
       MYSQL_ROOT_PASSWORD: rootpassword
-      MYSQL_DATABASE: consumptions
+      MYSQL_DATABASE: consumption-tracker
       MYSQL_USER: trackeruser
       MYSQL_PASSWORD: trackerpassword
     volumes:
