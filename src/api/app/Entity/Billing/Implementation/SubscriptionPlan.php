@@ -12,11 +12,11 @@ use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
-use JR\Tracker\Entity\User\Contract\UserSubscriptionPlanInterface;
+use JR\Tracker\Entity\Billing\Contract\SubscriptionPlanInterface;
 
 #[Entity]
-#[Table(name: 'userSubscriptionPlan')]
-class UserSubscriptionPlan implements UserSubscriptionPlanInterface
+#[Table(name: 'subscriptionPlan')]
+class SubscriptionPlan implements SubscriptionPlanInterface
 {
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
@@ -36,10 +36,10 @@ class UserSubscriptionPlan implements UserSubscriptionPlanInterface
     #[Column(type: 'integer')]
     private int $durationDays; // 0 = neomezeně
 
-    #[OneToMany(mappedBy: 'useSubscriptionPlan', targetEntity: UserSubscriptionPlanFeature::class)]
+    #[OneToMany(mappedBy: 'useSubscriptionPlan', targetEntity: SubscriptionPlanFeature::class)]
     private Collection $useSubscriptionPlanFeature;
 
-    #[OneToMany(mappedBy: 'userSubscriptionPlan', targetEntity: UserSubscription::class)]
+    #[OneToMany(mappedBy: 'userSubscriptionPlan', targetEntity: Subscription::class)]
     private Collection $userSubscription;
 
     public function __construct()

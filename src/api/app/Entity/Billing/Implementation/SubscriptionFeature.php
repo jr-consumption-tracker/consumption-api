@@ -9,11 +9,11 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
-use JR\Tracker\Entity\User\Contract\UserSubscriptionFeatureInterface;
+use JR\Tracker\Entity\Billing\Contract\SubscriptionFeatureInterface;
 
 #[Entity]
-#[Table(name: 'userSubscriptionFeature')]
-class UserSubscriptionFeature implements UserSubscriptionFeatureInterface
+#[Table(name: 'subscriptionFeature')]
+class SubscriptionFeature implements SubscriptionFeatureInterface
 {
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]

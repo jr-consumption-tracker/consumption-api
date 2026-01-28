@@ -11,12 +11,11 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\JoinColumn;
 use Doctrine\ORM\Mapping\GeneratedValue;
-
-use JR\Tracker\Entity\User\Contract\UserSubscriptionInterface;
+use JR\Tracker\Entity\Billing\Contract\SubscriptionInterface;
 
 #[Entity]
-#[Table(name: 'userSubscription')]
-class UserSubscription implements UserSubscriptionInterface
+#[Table(name: 'subscription')]
+class Subscription implements SubscriptionInterface
 {
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
@@ -36,7 +35,7 @@ class UserSubscription implements UserSubscriptionInterface
     #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
     private User $user;
 
-    #[ManyToOne(targetEntity: UserSubscriptionPlan::class, inversedBy: 'userSubscription')]
+    #[ManyToOne(targetEntity: SubscriptionPlan::class, inversedBy: 'userSubscription')]
     #[JoinColumn(name: 'idUserSubscriptionPlan', referencedColumnName: 'idUserSubscriptionPlan', nullable: false)]
-    private UserSubscriptionPlan $userSubscriptionPlan;
+    private SubscriptionPlan $userSubscriptionPlan;
 }

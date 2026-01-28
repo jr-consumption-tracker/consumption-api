@@ -14,6 +14,7 @@ use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\Common\Collections\ArrayCollection;
 use JR\Tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\Entity\Measurement\Implementation\ConsumptionPlace;
 
 #[Entity]
 #[Table(name: 'user')]
@@ -42,17 +43,17 @@ class User implements UserInterface
     #[OneToMany(mappedBy: 'user', targetEntity: UserPermissionOverride::class, cascade: ['persist', 'remove'])]
     private Collection $permissionOverride;
 
-    #[OneToMany(mappedBy: 'user', targetEntity: UserSubscription::class)]
+    #[OneToMany(mappedBy: 'user', targetEntity: Subscription::class)]
     private Collection $subscription;
 
-    // #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class)]
-    // private Collection $consumptionPlace;
+    #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class)]
+    private Collection $consumptionPlace;
 
     public function __construct()
     {
         $this->userRole = new ArrayCollection();
         $this->permissionOverride = new ArrayCollection();
         $this->subscription = new ArrayCollection();
-        // $this->consumptionPlace = new ArrayCollection();
+        $this->consumptionPlace = new ArrayCollection();
     }
 }

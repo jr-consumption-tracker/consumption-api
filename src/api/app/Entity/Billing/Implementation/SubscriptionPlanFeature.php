@@ -9,19 +9,19 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\JoinColumn;
-use JR\Tracker\Entity\User\Contract\UserSubscriptionPlanFeatureInterface;
+use JR\Tracker\Entity\Billing\Contract\SubscriptionPlanFeatureInterface;
 
 #[Entity]
-#[Table(name: 'userSubscriptionPlanFeature')]
-class UserSubscriptionPlanFeature implements UserSubscriptionPlanFeatureInterface
+#[Table(name: 'subscriptionPlanFeature')]
+class SubscriptionPlanFeature implements SubscriptionPlanFeatureInterface
 {
     #[Id]
-    #[ManyToOne(targetEntity: UserSubscriptionPlan::class, inversedBy: 'userSubscriptionPlanFeature')]
+    #[ManyToOne(targetEntity: SubscriptionPlan::class, inversedBy: 'userSubscriptionPlanFeature')]
     #[JoinColumn(name: 'idUserSubscriptionPlan', referencedColumnName: 'idUserSubscriptionPlan', nullable: false)]
-    private UserSubscriptionPlan $useSubscriptionPlan;
+    private SubscriptionPlan $useSubscriptionPlan;
 
     #[Id]
-    #[ManyToOne(targetEntity: UserSubscriptionFeature::class)]
+    #[ManyToOne(targetEntity: SubscriptionFeature::class)]
     #[JoinColumn(name: 'idUserSubscriptionFeature', referencedColumnName: 'idUserSubscriptionFeature', nullable: false)]
-    private UserSubscriptionFeature $userSubscriptionFeature;
+    private SubscriptionFeature $userSubscriptionFeature;
 }
