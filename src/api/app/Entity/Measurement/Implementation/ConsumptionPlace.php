@@ -21,6 +21,7 @@ class ConsumptionPlace implements ConsumptionPlaceInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idConsumptionPlace;
 
     #[ManyToOne(targetEntity: User::class, inversedBy: 'consumptionPlace')]
@@ -29,4 +30,32 @@ class ConsumptionPlace implements ConsumptionPlaceInterface
 
     #[Column(length: 50)]
     private string $name;
+
+
+    // Getters
+    public function getIdConsumptionPlace(): int
+    {
+        return $this->idConsumptionPlace;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+
+
+    // Setters
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
 }

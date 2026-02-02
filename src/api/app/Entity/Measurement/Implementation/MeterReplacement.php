@@ -22,6 +22,7 @@ class MeterReplacement implements MeterReplacementInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idMeter;
 
     #[Column(type: 'smallint')]
@@ -42,4 +43,68 @@ class MeterReplacement implements MeterReplacementInterface
     #[ManyToOne(targetEntity: MeasuredEnergy::class)]
     #[JoinColumn(name: "idMeasuredEnergy", referencedColumnName: "idMeasuredEnergy", nullable: false)]
     private MeasuredEnergy $measuredEnergy;
+
+
+    // Getters
+    public function getIdMeter(): int
+    {
+        return $this->idMeter;
+    }
+    public function getYear(): int
+    {
+        return $this->year;
+    }
+    public function getMonth(): int
+    {
+        return $this->month;
+    }
+    public function getOldMeterFinalValue(): float
+    {
+        return $this->oldMeterFinalValue;
+    }
+    public function getNewMeterInitialValue(): float
+    {
+        return $this->newMeterInitialValue;
+    }
+    public function getReplacedAt(): ?\DateTimeImmutable
+    {
+        return $this->replacedAt;
+    }
+    public function getMeasuredEnergy(): MeasuredEnergy
+    {
+        return $this->measuredEnergy;
+    }
+
+
+    // Setters
+    public function setYear(int $year): self
+    {
+        $this->year = $year;
+        return $this;
+    }
+    public function setMonth(int $month): self
+    {
+        $this->month = $month;
+        return $this;
+    }
+    public function setOldMeterFinalValue(float $oldMeterFinalValue): self
+    {
+        $this->oldMeterFinalValue = $oldMeterFinalValue;
+        return $this;
+    }
+    public function setNewMeterInitialValue(float $newMeterInitialValue): self
+    {
+        $this->newMeterInitialValue = $newMeterInitialValue;
+        return $this;
+    }
+    public function setReplacedAt(?\DateTimeImmutable $replacedAt): self
+    {
+        $this->replacedAt = $replacedAt;
+        return $this;
+    }
+    public function setMeasuredEnergy(MeasuredEnergy $measuredEnergy): self
+    {
+        $this->measuredEnergy = $measuredEnergy;
+        return $this;
+    }
 }

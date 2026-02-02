@@ -21,6 +21,7 @@ class UserRoleType implements UserRoleTypeInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idUserRoleType;
 
     #[Column(length: 25, unique: true)]
@@ -42,5 +43,55 @@ class UserRoleType implements UserRoleTypeInterface
     {
         $this->userRole = new ArrayCollection();
         $this->userRolePermission = new ArrayCollection();
+    }
+
+
+    // Getters
+    public function getIdUserRoleType(): int
+    {
+        return $this->idUserRoleType;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+    public function getValue(): int
+    {
+        return $this->value;
+    }
+    public function getDescription(): string
+    {
+        return $this->description;
+    }
+    public function getUserRole(): Collection
+    {
+        return $this->userRole;
+    }
+    public function getUserRolePermission(): Collection
+    {
+        return $this->userRolePermission;
+    }
+
+
+    // Setters
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function setValue(int $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
+    public function setDescription(string $description): self
+    {
+        $this->description = $description;
+        return $this;
+    }
+    public function setUserRolePermission(Collection $userRolePermission): self
+    {
+        $this->userRolePermission = $userRolePermission;
+        return $this;
     }
 }

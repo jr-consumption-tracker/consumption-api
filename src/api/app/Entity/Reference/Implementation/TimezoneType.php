@@ -22,6 +22,7 @@ class TimezoneType implements TimezoneTypeInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idTimezoneType;
 
     #[Column(unique: true, length: 25)]
@@ -36,5 +37,37 @@ class TimezoneType implements TimezoneTypeInterface
     public function __construct()
     {
         $this->user = new ArrayCollection();
+    }
+
+
+    // Getters
+    public function getIdTimezoneType(): int
+    {
+        return $this->idTimezoneType;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getUser(): Collection
+    {
+        return $this->user;
+    }
+
+
+    // Setters
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
     }
 }

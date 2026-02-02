@@ -24,4 +24,28 @@ class UserRole implements UserRoleInterface
     #[ManyToOne(targetEntity: UserRoleType::class, inversedBy: 'userRole')]
     #[JoinColumn(name: 'idUserRoleType', referencedColumnName: 'idUserRoleType', nullable: false)]
     private UserRoleType $userRoleType;
+
+
+    // Getters
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+    public function getUserRoleType(): UserRoleType
+    {
+        return $this->userRoleType;
+    }
+
+
+    // Setters
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+    public function setUserRoleType(UserRoleType $userRoleType): self
+    {
+        $this->userRoleType = $userRoleType;
+        return $this;
+    }
 }

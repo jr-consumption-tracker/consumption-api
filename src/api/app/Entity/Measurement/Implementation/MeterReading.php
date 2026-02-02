@@ -22,6 +22,7 @@ class MeterReading implements MeterReadingInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idMeterReading;
 
     #[ManyToOne(targetEntity: MeasuredEnergy::class)]
@@ -39,4 +40,59 @@ class MeterReading implements MeterReadingInterface
 
     #[Column(type: 'datetime_immutable', nullable: true)]
     private ?\DateTimeImmutable $measuredAt;
+
+
+    // Getters
+    public function getIdMeterReading(): int
+    {
+        return $this->idMeterReading;
+    }
+    public function getMeasuredEnergy(): MeasuredEnergy
+    {
+        return $this->measuredEnergy;
+    }
+    public function getYear(): int
+    {
+        return $this->year;
+    }
+    public function getMonth(): int
+    {
+        return $this->month;
+    }
+    public function getValue(): float
+    {
+        return $this->value;
+    }
+    public function getMeasuredAt(): ?\DateTimeImmutable
+    {
+        return $this->measuredAt;
+    }
+
+
+    // Setters
+    public function setMeasuredEnergy(MeasuredEnergy $measuredEnergy): self
+    {
+        $this->measuredEnergy = $measuredEnergy;
+        return $this;
+    }
+    public function setYear(int $year): self
+    {
+        $this->year = $year;
+        return $this;
+    }
+    public function setMonth(int $month): self
+    {
+        $this->month = $month;
+        return $this;
+    }
+    public function setValue(float $value): self
+    {
+        $this->value = $value;
+        return $this;
+    }
+    public function setMeasuredAt(?\DateTimeImmutable $measuredAt): self
+    {
+        $this->measuredAt = $measuredAt;
+        return $this;
+    }
 }

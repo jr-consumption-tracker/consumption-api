@@ -22,6 +22,7 @@ class EnergyVariant implements EnergyVariantInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idEnergyVariant;
 
     #[ManyToOne(targetEntity: EnergyType::class, inversedBy: 'energyVariant')]
@@ -39,4 +40,59 @@ class EnergyVariant implements EnergyVariantInterface
 
     #[Column(type: 'boolean', options: ['default' => false])]
     private bool $active;
+
+
+    // Getters
+    public function getIdEnergyVariant(): int
+    {
+        return $this->idEnergyVariant;
+    }
+    public function getEnergyType(): EnergyType
+    {
+        return $this->energyType;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getSortOrder(): int
+    {
+        return $this->sortOrder;
+    }
+    public function isActive(): bool
+    {
+        return $this->active;
+    }
+
+
+    // Setters
+    public function setEnergyType(EnergyType $energyType): self
+    {
+        $this->energyType = $energyType;
+        return $this;
+    }
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function setSortOrder(int $sortOrder): self
+    {
+        $this->sortOrder = $sortOrder;
+        return $this;
+    }
+    public function setActive(bool $active): self
+    {
+        $this->active = $active;
+        return $this;
+    }
 }

@@ -18,6 +18,7 @@ class UnitType implements UnitTypeInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idUnitType;
 
     #[Column(unique: true, length: 10)]
@@ -30,4 +31,41 @@ class UnitType implements UnitTypeInterface
     private float $conversionToBase;
     // převodní koeficient k základní jednotce EnergyType
     // např. pro MWh → kWh = 1000
+
+
+    // Getters
+    public function getIdUnitType(): int
+    {
+        return $this->idUnitType;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getConversionToBase(): float
+    {
+        return $this->conversionToBase;
+    }
+
+
+    // Setters
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function setConversionToBase(float $conversionToBase): self
+    {
+        $this->conversionToBase = $conversionToBase;
+        return $this;
+    }
 }

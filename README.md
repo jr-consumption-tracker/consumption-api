@@ -74,6 +74,16 @@ sudo docker compose exec app php tracker migrations:status
 
 See the documentation file for more details and additional commands.
 
+## Running Fixtures
+
+To load fixtures (test data) into the database, use the following command from the project root:
+
+```
+sudo docker compose exec app php tracker fixtures:load
+```
+
+You will be prompted for confirmation before the fixtures are loaded. This command will overwrite existing data in the database with the fixture data.
+
 ### Prerequisites
 
 - Docker & Docker Compose

@@ -24,4 +24,28 @@ class UserRolePermission implements UserRolePermissionInterface
     #[ManyToOne(targetEntity: UserPermission::class)]
     #[JoinColumn(name: 'idUserPermission', referencedColumnName: 'idUserPermission', nullable: false)]
     private UserPermission $userPermission;
+
+
+    // Getters
+    public function getUserRoleType(): UserRoleType
+    {
+        return $this->userRoleType;
+    }
+    public function getUserPermission(): UserPermission
+    {
+        return $this->userPermission;
+    }
+
+
+    // Setters
+    public function setUserRoleType(UserRoleType $userRoleType): self
+    {
+        $this->userRoleType = $userRoleType;
+        return $this;
+    }
+    public function setUserPermission(UserPermission $userPermission): self
+    {
+        $this->userPermission = $userPermission;
+        return $this;
+    }
 }

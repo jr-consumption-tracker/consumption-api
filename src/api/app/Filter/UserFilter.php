@@ -16,6 +16,6 @@ class UserFilter extends SQLFilter
             return '';
         }
 
-        return $targetTableAlias . 'IdUser = ' . $this->getParameter('IdUser');
+        return $targetTableAlias . 'idUser = ' . $this->getParameter('idUser');
     }
 }

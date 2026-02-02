@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JR\Tracker\Entity\User\Implementation;
+namespace JR\Tracker\Entity\Billing\Implementation;
 
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
@@ -21,6 +21,7 @@ class SubscriptionPlan implements SubscriptionPlanInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idUserSubscriptionPlan;
 
 
@@ -46,5 +47,58 @@ class SubscriptionPlan implements SubscriptionPlanInterface
     {
         $this->useSubscriptionPlanFeature = new ArrayCollection();
         $this->userSubscription = new ArrayCollection();
+    }
+
+    // Getters
+    public function getIdUserSubscriptionPlan(): int
+    {
+        return $this->idUserSubscriptionPlan;
+    }
+    public function getCode(): string
+    {
+        return $this->code;
+    }
+    public function getName(): string
+    {
+        return $this->name;
+    }
+    public function getPrice(): string
+    {
+        return $this->price;
+    }
+    public function getDurationDays(): int
+    {
+        return $this->durationDays;
+    }
+    public function getUseSubscriptionPlanFeature(): Collection
+    {
+        return $this->useSubscriptionPlanFeature;
+    }
+    public function getUserSubscription(): Collection
+    {
+        return $this->userSubscription;
+    }
+
+
+    // Setters
+    public function setCode(string $code): self
+    {
+        $this->code = $code;
+        return $this;
+    }
+    public function setName(string $name): self
+    {
+        $this->name = $name;
+        return $this;
+    }
+    public function setPrice(string $price): self
+    {
+        $this->price = $price;
+        return $this;
+    }
+    public function setDurationDays(int $durationDays): self
+    {
+        $this->durationDays = $durationDays;
+        return $this;
     }
 }

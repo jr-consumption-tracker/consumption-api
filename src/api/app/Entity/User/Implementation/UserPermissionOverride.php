@@ -28,4 +28,36 @@ class UserPermissionOverride implements UserPermissionOverrideInterface
     #[ManyToOne(targetEntity: UserPermission::class)]
     #[JoinColumn(name: 'idUserPermission', referencedColumnName: 'idUserPermission', nullable: false)]
     private UserPermission $userPermission;
+
+
+    // Getters
+    public function isAllow(): bool
+    {
+        return $this->allow;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+    public function getUserPermission(): UserPermission
+    {
+        return $this->userPermission;
+    }
+
+    // Setters
+    public function setAllow(bool $allow): self
+    {
+        $this->allow = $allow;
+        return $this;
+    }
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
+    public function setUserPermission(UserPermission $userPermission): self
+    {
+        $this->userPermission = $userPermission;
+        return $this;
+    }
 }

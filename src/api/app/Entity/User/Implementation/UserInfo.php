@@ -23,6 +23,7 @@ class UserInfo implements UserInfoInterface
     #[Id]
     #[GeneratedValue(strategy: 'AUTO')]
     #[Column]
+    /** @phpstan-ignore-next-line */
     private int $idUserInfo;
 
     #[Column(length: 50)]
@@ -43,4 +44,58 @@ class UserInfo implements UserInfoInterface
     #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
     private User $user;
 
+
+    // Getters
+    public function getIdUserInfo(): int
+    {
+        return $this->idUserInfo;
+    }
+    public function getFirstName(): ?string
+    {
+        return $this->firstName;
+    }
+    public function getLastName(): ?string
+    {
+        return $this->lastName;
+    }
+    public function getLocaleType(): ?LocaleType
+    {
+        return $this->localeType;
+    }
+    public function getTimezoneType(): ?TimezoneType
+    {
+        return $this->timezoneType;
+    }
+    public function getUser(): User
+    {
+        return $this->user;
+    }
+
+
+    // Setters
+    public function setFirstName(?string $firstName): self
+    {
+        $this->firstName = $firstName;
+        return $this;
+    }
+    public function setLastName(?string $lastName): self
+    {
+        $this->lastName = $lastName;
+        return $this;
+    }
+    public function setLocaleType(?LocaleType $localeType): self
+    {
+        $this->localeType = $localeType;
+        return $this;
+    }
+    public function setTimezoneType(?TimezoneType $timezoneType): self
+    {
+        $this->timezoneType = $timezoneType;
+        return $this;
+    }
+    public function setUser(User $user): self
+    {
+        $this->user = $user;
+        return $this;
+    }
 }
