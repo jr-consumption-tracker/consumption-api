@@ -8,7 +8,7 @@ use JR\Tracker\Middleware\ValidateSignatureMiddleware;
 
 function getVerifyEmailRoutes(RouteCollectorProxy $api)
 {
-    $api->group('/verifyEmil', function (RouteCollectorProxy $auth) {
+    $api->group('/verifyEmail', function (RouteCollectorProxy $auth) {
         $auth->post('/verify/{uuid}/{hash}', [VerifyEmailController::class, "verify"])
             ->setName('verify')
             ->add(ValidateSignatureMiddleware::class);

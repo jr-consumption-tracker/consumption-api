@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\Middleware;
 
 use JR\Tracker\Config;
+use JR\Tracker\Enum\HttpStatusCode;
 use Slim\Routing\RouteContext;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Server\MiddlewareInterface;
@@ -31,9 +32,8 @@ class RateLimitMiddleware implements MiddlewareInterface
         $route = $routeContext->getRoute();
         $limiter = $this->rateLimiterFactory->create($route->getName() . '_' . $clientIp);
 
-        // TODO: Nefunguje to
         if ($limiter->consume()->isAccepted() === false) {
-            return $this->responseFactory->createResponse(429, 'Too many requests');
+            return $this->responseFactory->createResponse(HttpStatusCode::TOO_MANY_REQUESTS->value, 'Too many requests');
         }
 
         return $handler->handle($request);
