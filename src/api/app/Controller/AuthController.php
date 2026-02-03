@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JR\Tracker\Controllers;
+namespace JR\Tracker\Controller;
 
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\DataObject\Data\RegisterUserData;

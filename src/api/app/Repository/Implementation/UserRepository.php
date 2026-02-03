@@ -31,14 +31,19 @@ class UserRepository implements UserRepositoryInterface
             $user
                 ->setUuid()
                 ->setEmail($data->email)
-                ->setPassword($data->hashedPassword);
+                ->setPassword($data->password)
+                ->setCreatedAt();
 
-            $idUser = $this->entityManagerService->sync($user);
+            $this->entityManagerService->persist($user);
+            $this->entityManagerService->flush();
 
             // Insert user info
-            $userInfo = new UserInfo();
+            $userInfo = new UserInfo()
+                ->setUser($user);
 
-            $this->entityManagerService->sync($userInfo);
+            // $this->entityManagerService->sync($userInfo);
+            $this->entityManagerService->persist($userInfo);
+            $this->entityManagerService->flush();
 
             // Insert user role types
             $userRoleTypes = $this->entityManagerService->getRepository(UserRoleType::class)

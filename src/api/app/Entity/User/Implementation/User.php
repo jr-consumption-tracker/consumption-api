@@ -116,6 +116,11 @@ class User implements UserInterface
         $this->password = $hashedPassword;
         return $this;
     }
+    public function setCreatedAt(): self
+    {
+        $this->createdAt = new \DateTimeImmutable();
+        return $this;
+    }
     public function setUserInfo(UserInfo $userInfo): self
     {
         $this->userInfo = $userInfo;

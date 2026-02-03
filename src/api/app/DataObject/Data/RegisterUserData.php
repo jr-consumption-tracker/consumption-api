@@ -7,8 +7,17 @@ namespace JR\Tracker\DataObject\Data;
 class RegisterUserData
 {
     public function __construct(
-        public string $email,
-        public string $hashedPassword
+        public readonly string $email,
+        public readonly string $password
     ) {
+    }
+
+
+    public function withHashedPassword(string $hashedPassword): self
+    {
+        return new self(
+            $this->email,
+            $hashedPassword,
+        );
     }
 }

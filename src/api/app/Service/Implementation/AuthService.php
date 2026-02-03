@@ -49,7 +49,9 @@ class AuthService implements AuthServiceInterface
      */
     public function registerUser(RegisterUserData $data): UserInterface
     {
-        $data->hashedPassword = $this->hashService->hash($data->hashedPassword);
+        $hashedPassword = $this->hashService->hash($data->password);
+        $data = $data->withHashedPassword($hashedPassword);
+
         $user = $this->userRepository->createUser($data);
 
         $this->signUpEmail->send($user);

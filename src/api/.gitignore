@@ -3,3 +3,6 @@
 
 # Misc
 .env
+
+# Testing
+.phpunit.result.cache

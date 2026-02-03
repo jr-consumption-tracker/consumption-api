@@ -2,7 +2,7 @@
   "name": "consumption-tracker/api",
   "description": "API for Consumption Tracker application",
   "version": "0.0.1",
-  "authoors": [
+  "authors": [
     {
       "name": "Jan Ribka",
       "email": "weby.ribika@gmail.com"
@@ -13,6 +13,11 @@
       "JR\\Tracker\\": "app/"
     }
   },
+  "autoload-dev": {
+    "psr-4": {
+      "Test\\": "test/"
+    }
+  },
   "config": {
     "platform": {
       "php": "8.4.0"
@@ -20,23 +25,37 @@
     "sort-packages": true,
     "optimize-autoloader": true
   },
+  "scripts": {
+    "test": "composer test:unit",
+    "test:unit": "phpunit --colors=always --testsuite=Unit --testdox"
+  },
   "require": {
+    "ext-redis": "*",
     "beberlei/doctrineextensions": "^1.5",
+    "doctrine/data-fixtures": "^2.2",
     "doctrine/dbal": "^4.4",
     "doctrine/migrations": "^3.9",
     "doctrine/orm": "^3.6",
+    "firebase/php-jwt": "^7.0",
+    "itsgoingd/clockwork": "^5.3",
+    "league/flysystem": "^3.31",
+    "league/flysystem-aws-s3-v3": "^3.31",
     "php-di/php-di": "^7.1",
+    "phpstan/phpstan": "^2.1",
+    "psr/simple-cache": "^3.0",
+    "slim/psr7": "^1.8",
     "slim/slim": "^4.15",
+    "slim/twig-view": "^3.4",
     "symfony/cache": "^8.0",
     "symfony/mailer": "^8.0",
+    "symfony/rate-limiter": "^8.0",
     "symfony/twig-bridge": "^8.0",
     "symfony/uid": "^8.0",
+    "twig/intl-extra": "^3.23",
     "vlucas/phpdotenv": "^5.6",
     "vlucas/valitron": "^1.4"
   },
   "require-dev": {
-    "doctrine/data-fixtures": "^2.2",
-    "phpstan/phpstan": "^2.1",
     "phpunit/phpunit": "^12.5"
   }
 }

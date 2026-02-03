@@ -26,10 +26,10 @@ class UserInfo implements UserInfoInterface
     /** @phpstan-ignore-next-line */
     private int $idUserInfo;
 
-    #[Column(length: 50)]
+    #[Column(length: 50, nullable: true)]
     private ?string $firstName;
 
-    #[Column(length: 50)]
+    #[Column(length: 50, nullable: true)]
     private ?string $lastName;
 
     #[ManyToOne(targetEntity: LocaleType::class, inversedBy: 'user')]

@@ -8,6 +8,10 @@ services:
     working_dir: /var/www/html/api/
     volumes:
       - ../src:/var/www/html
+      - ./local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
     networks:
       - consumption-tracker-network
     depends_on:
@@ -27,6 +31,8 @@ services:
       - app
     networks:
       - consumption-tracker-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   db:
     image: mysql:8.0
@@ -57,6 +63,27 @@ services:
     networks:
       - consumption-tracker-network
 
+  mailhog:
+    container_name: consumption-tracker-api-mailhog
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - consumption-tracker-network
+
+  redis:
+    image: redis:latest
+    container_name: consumption-tracker-api-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    command: redis-server --requirepass mypassword
+    networks:
+      - consumption-tracker-network
 networks:
   consumption-tracker-network:
     driver: bridge

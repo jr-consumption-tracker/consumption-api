@@ -28,7 +28,7 @@ class SignUpEmail
         $email = $user->getEmail();
         $expirationDate = new DateTime('+24 hours');
         $activationLink = $this->signedUrlService->fromRoute(
-            'verify',
+            'verifyEmail',
             ['uuid' => $user->getUuid(), 'hash' => sha1($email)],
             $expirationDate
         );
