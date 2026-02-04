@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JR\tracker\Service\Implementation;
+namespace JR\Tracker\Service\Implementation;
 
 use League\Flysystem\Filesystem;
 use Symfony\Component\Mailer\Envelope;

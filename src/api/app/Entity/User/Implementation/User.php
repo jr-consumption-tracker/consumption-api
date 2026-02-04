@@ -34,7 +34,6 @@ class User implements UserInterface
     private string $password;
 
     #[Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
-    /** @phpstan-ignore-next-line */
     private \DateTimeImmutable $createdAt;
 
     #[OneToOne(mappedBy: 'user', targetEntity: UserInfo::class, cascade: ['persist', 'remove'])]

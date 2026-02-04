@@ -37,6 +37,10 @@ class RouteEntityBindingStrategy implements InvocationStrategyInterface
                 continue;
             }
 
+            if (!$type instanceof \ReflectionNamedType) {
+                continue;
+            }
+
             $paramName = $parameter->getName();
             $typeName = $type->getName();
 

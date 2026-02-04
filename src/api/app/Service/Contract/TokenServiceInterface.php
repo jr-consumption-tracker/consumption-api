@@ -7,14 +7,14 @@ namespace JR\Tracker\Service\Contract;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use JR\tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\Entity\User\Contract\UserInterface;
 
 interface TokenServiceInterface
 {
     /**
      * Create access token
      * @param \JR\Tracker\Entity\User\Contract\UserInterface $user
-     * @param int[] $role
+     * @param int[] $roles
      * @return string
      * @author Jan Ribka
      */

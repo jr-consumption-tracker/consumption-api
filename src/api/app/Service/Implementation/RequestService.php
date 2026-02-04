@@ -46,7 +46,7 @@ class RequestService implements RequestServiceInterface
         $orderDir = $params['order'][0]['dir'] ?? '';
 
         return new DataTableQueryParams(
-            (int) $params['start'] ?? 0,
+            (int) $params['start'],
             !!$params['length'] ? ((int) $params['length']) : null,
             $orderBy,
             $orderDir,
