@@ -19,7 +19,6 @@ class SignUpEmail
         private readonly MailerInterface $mailer,
         private readonly BodyRendererInterface $renderer,
         private readonly VerifyEmailServiceInterface $verifyEmailService,
-
     ) {
     }
 
