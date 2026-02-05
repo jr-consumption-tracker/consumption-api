@@ -34,16 +34,13 @@ class UserRepository implements UserRepositoryInterface
                 ->setPassword($data->password)
                 ->setCreatedAt();
 
-            $this->entityManagerService->persist($user);
-            $this->entityManagerService->flush();
+            $this->entityManagerService->sync($user);
 
             // Insert user info
             $userInfo = new UserInfo()
                 ->setUser($user);
 
-            // $this->entityManagerService->sync($userInfo);
-            $this->entityManagerService->persist($userInfo);
-            $this->entityManagerService->flush();
+            $this->entityManagerService->sync($userInfo);
 
             // Insert user role types
             $userRoleTypes = $this->entityManagerService->getRepository(UserRoleType::class)
@@ -70,5 +67,11 @@ class UserRepository implements UserRepositoryInterface
         });
 
         return $user;
+    }
+
+    public function getUserByEmail(string $email): ?UserInterface
+    {
+        return $this->entityManagerService->getRepository(User::class)
+            ->findOneBy(['email' => $email]);
     }
 }

@@ -26,7 +26,7 @@ class EntityManagerService implements EntityManagerServiceInterface
         throw new \BadMethodCallException('Call to undefined method "' . $name . '"');
     }
 
-    public function sync($entity = null): int
+    public function sync($entity = null): int|string|null
     {
         if ($entity) {
             $this->entityManagerService->persist($entity);
@@ -34,7 +34,18 @@ class EntityManagerService implements EntityManagerServiceInterface
 
         $this->entityManagerService->flush();
 
-        return (int) $this->entityManagerService->getConnection()->lastInsertId();
+        if ($entity === null) {
+            return null;
+        }
+
+        $classMetadata = $this->entityManagerService->getClassMetadata(get_class($entity));
+        $identifier = $classMetadata->getIdentifierValues($entity);
+
+        if (count($identifier) === 1) {
+            return reset($identifier);
+        }
+
+        return null;
     }
 
     public function delete($entity, bool $sync = false): void

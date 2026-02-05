@@ -56,9 +56,13 @@ use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use JR\Tracker\Repository\Implementation\UserRepository;
 use JR\Tracker\Service\Contract\RequestServiceInterface;
 use JR\Tracker\Service\Contract\SessionServiceInterface;
+use JR\Tracker\Service\Implementation\VerifyEmailService;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Implementation\EntityManagerService;
+use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
+use JR\Tracker\Repository\Implementation\VerifyEmailRepository;
+use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
 use JR\Tracker\RequestValidator\Request\Implementation\RequestValidatorFactory;
 use JR\Tracker\RequestValidator\Request\Contract\RequestValidatorFactoryInterface;
 
@@ -179,11 +183,17 @@ return [
     AuthServiceInterface::class => fn(ContainerInterface $container) => $container->get(
         AuthService::class
     ),
+    VerifyEmailServiceInterface::class => fn(ContainerInterface $container) => $container->get(
+        VerifyEmailService::class
+    ),
         #endregion
 
         #region Repositories
     UserRepositoryInterface::class => fn(ContainerInterface $container) => $container->get(
         UserRepository::class
+    ),
+    VerifyEmailRepositoryInterface::class => fn(ContainerInterface $container) => $container->get(
+        VerifyEmailRepository::class
     ),
         #endregion
 

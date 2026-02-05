@@ -10,5 +10,6 @@ use JR\Tracker\Entity\User\Contract\UserInterface;
 interface UserRepositoryInterface
 {
     public function createUser(RegisterUserData $data): UserInterface;
+    public function getUserByEmail(string $email): ?UserInterface;
 }
 

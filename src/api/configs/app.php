@@ -25,6 +25,7 @@ return [
     'display_error_details' => $boolean($_ENV['APP_DEBUG'] ?? 0),
     'log_errors' => true,
     'log_error_details' => true,
+    'client_app_url' => $_ENV['CLIENT_APP_URL'] ?? 'http://localhost:3005',
     'doctrine' => [
         'dev_mode' => AppEnvironmentEnum::isDevelopment($appEnv),
         'cache_dir' => STORAGE_PATH . '/cache/doctrine',
