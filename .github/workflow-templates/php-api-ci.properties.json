@@ -1,0 +1,6 @@
+{
+  "name": "PHP API CI Pipeline",
+  "description": "CI pipeline pro PHP API projekty",
+  "iconName": "php",
+  "categories": ["PHP", "Continuous Integration"]
+}

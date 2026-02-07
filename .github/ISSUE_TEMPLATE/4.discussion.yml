@@ -1,0 +1,39 @@
+name: 💬 Návrh nebo diskuze
+description: Prostor pro otevřenou diskuzi k funkcím nebo návrhům
+title: "[Diskuze] "
+labels: ["stav:k-posouzeni"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        👉 **Důležité:** Začni název issue prefixem s oblastí v hranatých závorkách.  
+        Například: `[Web] Možnost duplikace receptu` nebo `[Admin] Nový layout detailu`.
+
+        Dostupné oblasti: `Web`, `Admin`, `Api`
+
+  - type: textarea
+    id: tema
+    attributes:
+      label: Téma k diskuzi
+      description: Co chceš navrhnout nebo konzultovat?
+      placeholder: "Chci probrat, zda má mít ingredience více jazykových mutací…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: navrh
+    attributes:
+      label: Možný návrh
+      description: Máš návrh, jak problém řešit? (nepovinné)
+      placeholder: "Přidat volitelný JSON pole `translations` k ingredienci…"
+    validations:
+      required: false
+
+  - type: textarea
+    id: dopad
+    attributes:
+      label: Dopad návrhu
+      description: Jak by změna ovlivnila aplikaci, uživatele nebo vývoj?
+      placeholder: "Vícejazyčné zadávání by umožnilo rozšíření mimo ČR…"
+    validations:
+      required: false

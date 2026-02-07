@@ -1,0 +1,27 @@
+---
+name: "Hlasování"
+about: "Navrhněte něco a zjistěte, co si o tom myslí komunita."
+title: '[Hlasování] '
+labels: voting
+---
+
+## Návrh / téma hlasování
+
+Popište stručně, o čem chcete hlasovat.
+
+## Možnosti hlasování
+
+- [ ] Možnost 1  
+- [ ] Možnost 2  
+- [ ] Možnost 3  
+- [ ] (Přidejte další možnosti, pokud je potřeba)
+
+## Doplňující informace
+
+(Přidejte vysvětlení, proč se hlasuje, případně další podrobnosti.)
+
+---
+
+**Jak hlasovat:**  
+Klikněte na čtvereček vedle možnosti, která se vám líbí, aby se zaškrtl.  
+Můžete vybrat jednu nebo více možností podle potřeby.

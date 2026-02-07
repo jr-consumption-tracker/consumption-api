@@ -1,0 +1,34 @@
+name: Přidání zprávy při uzavření issue
+
+on:
+  issues:
+    types:
+      - closed
+
+jobs:
+  add-comment:
+    name: Přidání komentáře
+    if: github.event.issue.state_reason == 'completed'
+    runs-on: ubuntu-latest
+    permissions:
+      issues: write
+      contents: read
+    steps:
+      - name: Přidat komentář k uzavřené issue
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const issue_number = context.issue.number;
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+            const message = `
+            Děkujeme za nahlášení! 🎉
+
+            Tato issue byla uzavřena jako **vyřešená**. Pokud problém přetrvává nebo se znovu objeví, neváhejte issue znovu otevřít nebo vytvořit novou.
+            `;
+            await github.rest.issues.createComment({
+              owner,
+              repo,
+              issue_number,
+              body: message
+            });

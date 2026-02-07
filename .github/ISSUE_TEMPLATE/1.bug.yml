@@ -1,0 +1,55 @@
+name: 🐛 Chyba v aplikaci
+description: Nahlášení chyby nebo neočekávaného chování
+title: "[Chyba] "
+labels: ["stav:k-posouzeni"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        👉 **Důležité:** Začni název issue prefixem s oblastí v hranatých závorkách.  
+        Například: `[Web] Možnost duplikace receptu` nebo `[Admin] Nový layout detailu`.
+
+        Dostupné oblasti: `Web`, `Admin`, `Api`
+
+  - type: textarea
+    id: popis
+    attributes:
+      label: Popis chyby
+      description: Co se stalo? Jaké bylo očekávané chování?
+      placeholder: "Po kliknutí na tlačítko se nic nestane, očekával jsem otevření modalu…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: kroky
+    attributes:
+      label: Jak chybu zopakovat
+      description: Seznam kroků, jak chybu znovu navodit.
+      placeholder: |
+        1. Přejdu na stránku Recepty
+        2. Kliknu na 'Přidat nový'
+        3. Vyplním název a kliknu na Uložit
+        4. Modal se nezobrazí
+    validations:
+      required: true
+
+  - type: input
+    id: prohlizec
+    attributes:
+      label: Prohlížeč / zařízení
+      description: V jakém prohlížeči nebo zařízení se problém objevil?
+      placeholder: "Chrome 124 / iPhone 14 / Windows 11"
+    validations:
+      required: false
+
+  - type: dropdown
+    id: priorita
+    attributes:
+      label: Priorita
+      options:
+        - Nízká
+        - Střední
+        - Vysoká
+      default: 1
+    validations:
+      required: true
