@@ -1,0 +1,39 @@
+name: ✨ Nová funkce
+description: Návrh nové funkcionality do aplikace
+title: "[Funkce] "
+labels: ["stav:k-posouzeni"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        👉 **Důležité:** Začni název issue prefixem s oblastí v hranatých závorkách.  
+        Například: `[Web] Možnost duplikace receptu` nebo `[Admin] Nový layout detailu`.
+
+        Dostupné oblasti: `Web`, `Admin`, `Api`
+
+  - type: textarea
+    id: popis
+    attributes:
+      label: Popis funkce
+      description: Co má funkce dělat? K čemu slouží?
+      placeholder: "Uživatel může zadávat jednotky pro každou ingredienci..."
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivace
+    attributes:
+      label: Proč je funkce potřeba?
+      description: Jaký problém řeší nebo co zlepší?
+      placeholder: "Bez toho nemůže administrátor zadávat kompletní recepty."
+    validations:
+      required: false
+
+  - type: textarea
+    id: navrh
+    attributes:
+      label: Návrh implementace
+      description: (Nepovinné) Máš nápad, jak to udělat?
+      placeholder: "Nový formulářový prvek v sekci Ingredience..."
+    validations:
+      required: false

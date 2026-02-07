@@ -1,0 +1,26 @@
+name: 🔧 Refaktoring
+description: Zlepšení struktury nebo kvality kódu bez změny jeho chování
+title: "[Refaktoring] "
+labels: ["stav:k-posouzeni"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        👉 **Důležité:** Začni název issue prefixem s oblastí v hranatých závorkách.  
+        Například: `[Web] Možnost duplikace receptu` nebo `[Admin] Nový layout detailu`.
+
+        Dostupné oblasti: `Web`, `Admin`, `Api`
+
+  - type: textarea
+    id: scope
+    attributes:
+      label: Co je potřeba refaktorovat?
+      placeholder: "Která část kódu a proč?"
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Proč je to potřeba?
+      placeholder: "Lepší čitelnost, výkon, testovatelnost..."

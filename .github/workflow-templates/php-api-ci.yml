@@ -1,0 +1,102 @@
+name: Kontrola kódu PHP API
+on:
+  push:
+    branches: [main, develop]
+  pull_request:
+    branches: [main, develop]
+
+jobs:
+  test:
+    name: Test + Lint + Static Analysis
+    runs-on: ubuntu-latest
+    
+    services:
+      mysql:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: password
+          MYSQL_DATABASE: consumption_tracker
+        ports:
+          - 3306:3306
+        options: >-
+          --health-cmd="mysqladmin ping --silent"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+      
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd="redis-cli ping"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=3
+    
+    steps:
+      - name: Checkout kódu
+        uses: actions/checkout@v4
+      
+      - name: Nastavení PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: redis, zip, pdo_mysql, mbstring, intl
+          coverage: none
+          tools: composer:v2
+      
+      - name: Validace composer.json a composer.lock
+        run: composer validate --strict
+      
+      - name: Cache Composer dependencies
+        uses: actions/cache@v4
+        with:
+          path: vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-composer-
+      
+      - name: Instalace závislostí
+        run: composer install --prefer-dist --no-progress --no-suggest --optimize-autoloader
+      
+      - name: Kontrola bezpečnosti balíčků
+        run: composer audit
+      
+      - name: Spuštění PHPStan (Static Analysis)
+        run: vendor/bin/phpstan analyse --no-progress
+      
+      - name: Spuštění testů
+        run: composer test
+        env:
+          DB_HOST: 127.0.0.1
+          DB_PORT: 3306
+          DB_NAME: consumption_tracker
+          DB_USER: root
+          DB_PASSWORD: password
+          REDIS_HOST: 127.0.0.1
+          REDIS_PORT: 6379
+      
+      # Volitelné - kontrola Doctrine schema
+      - name: Kontrola Doctrine schema
+        run: php bin/console orm:validate-schema --skip-sync
+        continue-on-error: true
+
+  docker-build:
+    name: Docker Build Test
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout kódu
+        uses: actions/checkout@v4
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+      
+      - name: Test Docker build
+        uses: docker/build-push-action@v5
+        with:
+          context: .
+          push: false
+          tags: consumption-api:test
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
