@@ -1,0 +1,8 @@
+# Vendor
+/vendor
+
+# Misc
+.env
+
+# Testing
+.phpunit.result.cache

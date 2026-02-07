@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="cs">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Ověření e-mailu – Consumption Tracker</title>
+    <!--[if mso]>
+    <style>
+        table {border-collapse: collapse;}
+        td, th, div, p, a, h1, h2, h3, h4, h5, h6 {font-family: Arial, sans-serif;}
+    </style>
+    <![endif]-->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+    </style>
+</head>
+<body style="margin: 0; padding: 0; font-family: 'Inter', Arial, sans-serif; background-color: #f8fafc; color: #1e293b;">
+    <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #f8fafc;">
+        <tr>
+            <td align="center" style="padding: 40px 20px;">
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="max-width: 600px; background-color: #ffffff; border-radius: 20px; overflow: hidden; box-shadow: 0 20px 40px rgba(15, 23, 42, 0.08); border: 1px solid #e5e7eb;">
+                    <!-- Header -->
+                    <tr>
+                        <td align="center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 40px;">
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; font-family: 'Inter', Arial, sans-serif;">Spotřeba energií</h1>
+                        </td>
+                    </tr>
+
+                    <!-- Content -->
+                    <tr>
+                        <td style="padding: 40px;">
+                            <h2 style="margin: 0 0 24px; font-size: 22px; font-weight: 600; color: #111827; font-family: 'Inter', Arial, sans-serif;">Vážený uživateli,</h2>
+                            
+                            <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #374151; font-family: 'Inter', Arial, sans-serif;">
+                                děkujeme Vám za registraci do aplikace 
+                                <span style="font-weight: 600; color: #0f172a;">Consumption Tracker</span>, která slouží k přehledné evidenci a kontrole spotřeby energií.
+                            </p>
+
+                            <p style="margin: 0 0 24px; font-size: 16px; line-height: 1.6; color: #374151; font-family: 'Inter', Arial, sans-serif;">
+                                Pro dokončení registrace je nutné ověřit Vaši e-mailovou adresu. Ověření provedete kliknutím na tlačítko níže.
+                            </p>
+
+                            <!-- Button -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td align="center" style="padding: 12px 0 36px;">
+                                        <a href="{{ activationLink }}" style="display: inline-block; background: #0f172a; color: #ffffff; text-decoration: none; padding: 14px 28px; border-radius: 10px; font-weight: 600; font-size: 15px; letter-spacing: 0.3px; font-family: 'Inter', Arial, sans-serif;">
+                                            Potvrdit e-mailovou adresu
+                                        </a>
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <!-- Warning -->
+                            <table role="presentation" border="0" cellpadding="0" cellspacing="0" width="100%" style="background-color: #fef3c7; border: 1px solid #f59e0b; border-radius: 10px;">
+                                <tr>
+                                    <td style="padding: 18px; font-size: 14px; color: #92400e; line-height: 1.5; font-family: 'Inter', Arial, sans-serif;">
+                                        <strong>Upozornění:</strong>
+                                        Tento ověřovací odkaz je platný do 
+                                        {{ expirationDate|date("d. m. Y H:i") }}. Pokud jste si účet nezakládal(a), můžete tento e-mail bez obav ignorovat.
+                                    </td>
+                                </tr>
+                            </table>
+
+                            <p style="margin: 32px 0 0; font-size: 16px; line-height: 1.6; color: #374151; font-family: 'Inter', Arial, sans-serif;">
+                                S přáním příjemného dne<br>
+                                <span style="font-weight: 600; color: #111827;">Tým Consumption Tracker</span>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Footer -->
+                    <tr>
+                        <td align="center" style="background-color: #f9fafb; padding: 28px 40px; border-top: 1px solid #e5e7eb;">
+                            <p style="margin: 0; font-size: 14px; color: #6b7280; line-height: 1.5; font-family: 'Inter', Arial, sans-serif;">
+                                V případě potíží nás můžete kontaktovat na adrese<br>
+                                <a href="mailto:support@spotrebaenergii.cz" style="color: #0f172a; text-decoration: none; font-weight: 500;">support@spotrebaenergii.cz</a>
+                            </p>
+                        </td>
+                    </tr>
+
+                    <!-- Copyright -->
+                    <tr>
+                        <td align="center" style="background-color: #ffffff; padding: 20px 40px; border-top: 1px solid #e5e7eb; font-size: 12px; color: #9ca3af; font-family: 'Inter', Arial, sans-serif;">
+                            © {{ "now"|date("Y") }} Spotřeba energií. Všechna práva vyhrazena.
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+</html>
+

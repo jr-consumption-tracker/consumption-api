@@ -1,0 +1,94 @@
+name: tracker
+
+services:
+  app:
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    container_name: consumption-tracker-api-app
+    restart: always
+    working_dir: /var/www/html/api/
+    volumes:
+      - ../src:/var/www/html
+      - ./local.ini:/usr/local/etc/php/conf.d/local.ini
+      - ./xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    networks:
+      - consumption-tracker-network
+    depends_on:
+      - db
+
+  nginx:
+    image: nginx:latest
+    container_name: consumption-tracker-api-nginx
+    ports:
+      - "3010:80"
+      - "3443:443"
+    volumes:
+      - ../src:/var/www/html
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
+      - ./certificates:/etc/nginx/certificates:ro
+    depends_on:
+      - app
+    networks:
+      - consumption-tracker-network
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+  db:
+    image: mysql:8.0
+    container_name: consumption-tracker-api-mysql
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: rootpassword
+      MYSQL_DATABASE: consumption-tracker
+      MYSQL_USER: trackeruser
+      MYSQL_PASSWORD: trackerpassword
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - consumption-tracker-network
+
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: consumption-tracker-api-phpmyadmin
+    restart: always
+    ports:
+      - "3015:80"
+    environment:
+      PMA_HOST: db
+      MYSQL_ROOT_PASSWORD: rootpassword
+    depends_on:
+      - db
+    networks:
+      - consumption-tracker-network
+
+  mailhog:
+    container_name: consumption-tracker-api-mailhog
+    image: mailhog/mailhog
+    restart: always
+    logging:
+      driver: "none"
+    ports:
+      - "8025:8025"
+      - "1025:1025"
+    networks:
+      - consumption-tracker-network
+
+  redis:
+    image: redis:latest
+    container_name: consumption-tracker-api-redis
+    restart: always
+    ports:
+      - "6380:6379"
+    command: redis-server --requirepass mypassword
+    networks:
+      - consumption-tracker-network
+networks:
+  consumption-tracker-network:
+    driver: bridge
+
+volumes:
+  db_data:
