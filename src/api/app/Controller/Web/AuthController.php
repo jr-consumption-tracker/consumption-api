@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JR\Tracker\Controller;
+namespace JR\Tracker\Controller\Web;
 
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\DataObject\Data\RegisterUserData;
@@ -19,7 +19,7 @@ class AuthController
         private readonly AuthServiceInterface $authService,
     ) {
     }
-
+// Pro oddělen é příhlašování použít strategy pattern
     public function registerUser(Request $request, Response $response): Response
     {
         $data = $this->requestValidatorFactory->make(RegisterUserRequestValidator::class)

@@ -3,7 +3,7 @@
 declare(strict_types=1);
 
 use Slim\Routing\RouteCollectorProxy;
-use JR\Tracker\Controller\AuthController;
+use JR\Tracker\Controller\Web\AuthController;
 use JR\Tracker\Middleware\RateLimitMiddleware;
 
 function getAuthRoutes(RouteCollectorProxy $api)

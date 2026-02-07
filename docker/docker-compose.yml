@@ -1,9 +1,11 @@
+name: tracker
+
 services:
   app:
     build:
       context: ./
       dockerfile: Dockerfile
-    container_name: consumption-tracker-api
+    container_name: consumption-tracker-api-app
     restart: always
     working_dir: /var/www/html/api/
     volumes:

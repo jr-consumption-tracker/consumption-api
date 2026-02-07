@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace JR\Tracker\Controller;
+namespace JR\Tracker\Controller\Web;
 
 use JR\Tracker\Enum\HttpStatusCode;
 use Psr\Http\Message\ResponseInterface;
