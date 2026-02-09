@@ -222,7 +222,10 @@ class AuthService implements AuthServiceInterface
             $domain
         );
 
-        $this->sessionService->start();
+        if (!$this->sessionService->isActive()) {
+            $this->sessionService->start();
+        }
+
         $this->sessionService->regenerate();
 
         $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray);
