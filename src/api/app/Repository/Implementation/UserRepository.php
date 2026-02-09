@@ -5,12 +5,15 @@ declare(strict_types=1);
 namespace JR\Tracker\Repository\Implementation;
 
 use JR\Tracker\Enum\UserRoleTypeEnum;
+use JR\Tracker\Enum\DomainContextEnum;
 use JR\Tracker\Entity\User\Implementation\User;
 use JR\Tracker\DataObject\Data\RegisterUserData;
 use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Entity\User\Implementation\UserInfo;
 use JR\Tracker\Entity\User\Implementation\UserRole;
+use JR\Tracker\Entity\User\Implementation\UserToken;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
+use JR\Tracker\Entity\User\Implementation\UserLoginHistory;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
 
@@ -22,7 +25,7 @@ class UserRepository implements UserRepositoryInterface
 
     }
 
-    public function createUser(RegisterUserData $data): UserInterface
+    public function create(RegisterUserData $data): UserInterface
     {
         $user = new User();
 
@@ -69,9 +72,60 @@ class UserRepository implements UserRepositoryInterface
         return $user;
     }
 
-    public function getUserByEmail(string $email): ?UserInterface
+    public function getByEmail(string $email): ?UserInterface
     {
         return $this->entityManagerService->getRepository(User::class)
             ->findOneBy(['email' => $email]);
+    }
+
+    public function logLoginAttempt(DomainContextEnum $domain, UserInterface $user, bool $successful): void
+    {
+        $userLogHistory = new UserLoginHistory();
+
+        $userLogHistory
+            ->setContext($domain)
+            ->setLoginAttemptAt(new \DateTimeImmutable())
+            ->setIsSuccessful($successful)
+            ->setUser($user);
+
+        if (isset($user)) {
+            $this->entityManagerService->sync($userLogHistory);
+        }
+    }
+
+    public function getRoleByIdUser(string $idUser): array
+    {
+        return $this->entityManagerService->getRepository(UserRole::class)
+            ->findBy(['user' => $idUser]);
+    }
+
+    public function refreshTokenExists(string $refreshToken): bool
+    {
+        return !!$this->entityManagerService->getRepository(UserToken::class)
+            ->findOneBy(['refreshToken' => $refreshToken]);
+    }
+
+    public function deleteRefreshTokes(string $idUser): void
+    {
+        $userTokens = $this->entityManagerService->getRepository(UserToken::class)
+            ->findBy(['user' => $idUser]);
+
+        foreach ($userTokens as $userToken) {
+            $this->entityManagerService->remove($userToken);
+        }
+
+        $this->entityManagerService->flush();
+    }
+
+    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain): void
+    {
+        $userToken = new UserToken();
+
+        $userToken
+            ->setDomain($domain)
+            ->setRefreshToken($refreshToken)
+            ->setUser($user);
+
+        $this->entityManagerService->sync($userToken);
     }
 }

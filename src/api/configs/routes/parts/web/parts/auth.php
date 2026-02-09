@@ -9,8 +9,9 @@ use JR\Tracker\Middleware\RateLimitMiddleware;
 function getAuthRoutes(RouteCollectorProxy $api)
 {
     $api->group('/auth', function (RouteCollectorProxy $auth) {
-        $auth->post('/registerUser', [AuthController::class, "registerUser"])
-            ->setName('registerUser')
+        $auth->post('/register', [AuthController::class, "register"]);
+        $auth->post("/login", [AuthController::class, "login"])
+            ->setName('login')
             ->add(RateLimitMiddleware::class);
     });
 

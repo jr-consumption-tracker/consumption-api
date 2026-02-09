@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace JR\Tracker\Entity\User\Implementation;
 
+use DateTime;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
 use Symfony\Component\Uid\Ulid;
@@ -30,8 +31,20 @@ class User implements UserInterface
     #[Column(length: 50, unique: true)]
     private string $email;
 
+    #[Column(nullable: true)]
+    private ?\DateTimeImmutable $emailVerifiedAt;
+
     #[Column(length: 255)]
     private string $password;
+
+    #[Column(nullable: false)]
+    private ?bool $isDisabled;
+
+    #[Column(nullable: true)]
+    private ?DateTime $webLoginRestrictedUntil;
+
+    #[Column(nullable: true)]
+    private ?DateTime $adminLoginRestrictedUntil;
 
     #[Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
     private \DateTimeImmutable $createdAt;
@@ -45,11 +58,19 @@ class User implements UserInterface
     #[OneToMany(mappedBy: 'user', targetEntity: UserPermissionOverride::class, cascade: ['persist', 'remove'])]
     private Collection $permissionOverride;
 
-    #[OneToMany(mappedBy: 'user', targetEntity: Subscription::class)]
+    #[OneToMany(mappedBy: 'user', targetEntity: Subscription::class, cascade: ['persist', 'remove'])]
     private Collection $subscription;
 
-    #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class)]
+    #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class, cascade: ['persist', 'remove'])]
     private Collection $consumptionPlace;
+
+    #[OneToMany(mappedBy: 'user', targetEntity: UserLoginHistory::class, cascade: ['persist', 'remove'])]
+    private Collection $userLoginHistory;
+
+
+    #[OneToMany(mappedBy: 'user', targetEntity: UserToken::class, cascade: ['persist', 'remove'])]
+    private Collection $userToken;
+
 
     public function __construct()
     {
@@ -57,6 +78,8 @@ class User implements UserInterface
         $this->permissionOverride = new ArrayCollection();
         $this->subscription = new ArrayCollection();
         $this->consumptionPlace = new ArrayCollection();
+        $this->userLoginHistory = new ArrayCollection();
+        $this->userToken = new ArrayCollection();
     }
 
 
@@ -69,9 +92,25 @@ class User implements UserInterface
     {
         return $this->email;
     }
+    public function getEmailVerifiedAt(): ?\DateTimeImmutable
+    {
+        return $this->emailVerifiedAt;
+    }
     public function getPassword(): string
     {
         return $this->password;
+    }
+    public function getIsDisabled(): ?bool
+    {
+        return $this->isDisabled;
+    }
+    public function getWebLoginRestrictedUntil(): ?DateTime
+    {
+        return $this->webLoginRestrictedUntil;
+    }
+    public function getAdminLoginRestrictedUntil(): ?DateTime
+    {
+        return $this->adminLoginRestrictedUntil;
     }
     public function getCreatedAt(): \DateTimeImmutable
     {

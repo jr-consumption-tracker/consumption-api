@@ -9,7 +9,11 @@ interface UserInterface
     // Getters
     public function getUuid(): string;
     public function getEmail(): string;
+    public function getEmailVerifiedAt(): ?\DateTimeImmutable;
     public function getPassword(): string;
+    public function getIsDisabled(): ?bool;
+    public function getWebLoginRestrictedUntil(): ?\DateTime;
+    public function getAdminLoginRestrictedUntil(): ?\DateTime;
 
     // Setters
     public function setUuid(): self;

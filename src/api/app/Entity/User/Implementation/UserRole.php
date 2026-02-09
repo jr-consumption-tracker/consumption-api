@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\ManyToOne;
 use Doctrine\ORM\Mapping\JoinColumn;
 use JR\Tracker\Entity\User\Contract\UserRoleInterface;
+use JR\Tracker\Entity\User\Contract\UserRoleTypeInterface;
 
 #[Entity]
 #[Table(name: 'userRole')]
@@ -31,7 +32,7 @@ class UserRole implements UserRoleInterface
     {
         return $this->user;
     }
-    public function getUserRoleType(): UserRoleType
+    public function getUserRoleType(): UserRoleTypeInterface
     {
         return $this->userRoleType;
     }

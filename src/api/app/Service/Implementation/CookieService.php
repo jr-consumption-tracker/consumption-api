@@ -33,17 +33,17 @@ class CookieService implements CookieServiceInterface
 
     public function get(string $key): string|null
     {
-        return $_COOKIE[$key];
+        return $_COOKIE[$key] ?? null;
     }
 
     public function delete(string $key, CookieConfigData|null $config = null): void
     {
         setcookie($key, "", [
             'expires' => time() - 3600,
-            'path' => $config->path,
-            'httpOnly' => $config->httpOnly,
-            'secure' => $config->secure,
-            'sameSite' => $config->sameSite->value,
+            'path' => $config?->path,
+            'httpOnly' => $config?->httpOnly,
+            'secure' => $config?->secure,
+            'sameSite' => $config?->sameSite->value,
         ]);
     }
 

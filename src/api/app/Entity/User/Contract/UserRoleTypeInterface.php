@@ -9,6 +9,7 @@ use Doctrine\Common\Collections\Collection;
 interface UserRoleTypeInterface
 {
     // Getters
+    public function getValue(): int;
     public function getUserRolePermission(): Collection;
 
     // Setters

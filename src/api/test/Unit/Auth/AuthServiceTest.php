@@ -5,14 +5,14 @@ declare(strict_types=1);
 namespace Test\Unit\Auth;
 
 use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use JR\Tracker\Service\Implementation\AuthService;
-use JR\Tracker\Repository\Contract\UserRepositoryInterface;
-use JR\Tracker\Service\Contract\HashServiceInterface;
 use JR\Tracker\Mail\SignUpEmail;
+use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
 use JR\Tracker\DataObject\Data\RegisterUserData;
 use JR\Tracker\Entity\User\Contract\UserInterface;
-use PHPUnit\Framework\Attributes\TestDox;
+use JR\Tracker\Service\Implementation\AuthService;
+use JR\Tracker\Service\Contract\HashServiceInterface;
+use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 
 class AuthServiceTest extends TestCase
 {
@@ -52,7 +52,7 @@ class AuthServiceTest extends TestCase
         $this->userRepository->expects($this->once())
             ->method('createUser')
             ->with($this->callback(function (RegisterUserData $passedData) use ($hashedPassword) {
-                return $passedData->hashedPassword === $hashedPassword;
+                return $passedData->password === $hashedPassword;
             }))
             ->willReturn($user);
 
