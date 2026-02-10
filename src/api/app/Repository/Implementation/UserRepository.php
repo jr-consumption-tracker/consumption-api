@@ -12,6 +12,7 @@ use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Entity\User\Implementation\UserInfo;
 use JR\Tracker\Entity\User\Implementation\UserRole;
 use JR\Tracker\Entity\User\Implementation\UserToken;
+use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
 use JR\Tracker\Entity\User\Implementation\UserLoginHistory;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
@@ -127,5 +128,36 @@ class UserRepository implements UserRepositoryInterface
             ->setUser($user);
 
         $this->entityManagerService->sync($userToken);
+    }
+
+    public function getByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserInterface
+    {
+        return $this->entityManagerService->getRepository(UserToken::class)
+            ->findOneBy(
+                [
+                    'domain' => $domain->value,
+                    'refreshToken' => $refreshToken
+                ]
+            )
+                ?->getUser() ?? null;
+    }
+
+    public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null
+    {
+        return $this->entityManagerService->getRepository(UserToken::class)
+            ->findOneBy([
+                'user' => $idUser,
+                'domain' => $domain->value
+            ]);
+    }
+
+    public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void
+    {
+        $userToken = $this->getRefreshToken($idUser, $domain);
+
+        if ($userToken) {
+            $this->entityManagerService->remove($userToken);
+            $this->entityManagerService->flush();
+        }
     }
 }

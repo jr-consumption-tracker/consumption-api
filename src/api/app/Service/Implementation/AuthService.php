@@ -83,24 +83,28 @@ class AuthService implements AuthServiceInterface
     }
 
 
-    // public function attemptLogout(): LogoutAttemptStatusEnum
-    // {
-    //     $refreshToken = $this->cookieService->get($this->authCookieConfig->name);
+    public function attemptLogout(DomainContextEnum $domain): void
+    {
+        $refreshToken = $this->cookieService->get($this->authCookieConfig->name);
 
-    //     if (!$refreshToken) {
-    //         return LogoutAttemptStatusEnum::NO_COOKIE;
-    //     }
+        if (!$refreshToken) {
+            throw new ValidationException(['noContent' => ['noCookie']], HttpStatusCode::NO_CONTENT->value);
+        }
 
-    //     $user = $this->userRepository->getByRefreshToken($refreshToken);
+        $user = $this->userRepository->getByRefreshToken($refreshToken, $domain);
 
-    //     if (!$user) {
-    //         $this->cookieService->delete($this->authCookieConfig->name);
+        if (!$user) {
+            $this->cookieService->delete($this->authCookieConfig->name);
 
-    //         return LogoutAttemptStatusEnum::NO_USER;
-    //     }
+            if ($this->sessionService->isActive()) {
+                $this->sessionService->destroy();
+            }
 
-    //     return $this->logout($user, DomainEnum::WEB);
-    // }
+            throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
+        }
+
+        $this->logout($user, $domain);
+    }
 
     // public function attemptRefreshToken(array $credentials): RefreshTokenAttemptStatusEnum|array
     // {
@@ -236,22 +240,24 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    // private function logout(UserInterface $user, DomainEnum $domain): LogoutAttemptStatusEnum
-    // {
-    //     $this->userRepository->deleteRefreshTokenByUserIdAndDomain($user->getId(), $domain);
+    private function logout(UserInterface $user, DomainContextEnum $domain): void
+    {
+        $this->userRepository->deleteRefreshToken($user->getUuid(), $domain);
 
-    //     $config = new CookieConfigData(
-    //         $this->authCookieConfig->secure,
-    //         $this->authCookieConfig->httpOnly,
-    //         $this->authCookieConfig->sameSite,
-    //         $this->authCookieConfig->expires,
-    //         $this->authCookieConfig->path
-    //     );
+        $config = new CookieConfigData(
+            $this->authCookieConfig->secure,
+            $this->authCookieConfig->httpOnly,
+            $this->authCookieConfig->sameSite,
+            $this->authCookieConfig->expires,
+            $this->authCookieConfig->path
+        );
 
-    //     $this->cookieService->delete($this->authCookieConfig->name, $config);
+        $this->cookieService->delete($this->authCookieConfig->name, $config);
 
-    //     return LogoutAttemptStatusEnum::LOGOUT_SUCCESS;
-    // }
+        if ($this->sessionService->isActive()) {
+            $this->sessionService->destroy();
+        }
+    }
 
     // private function refreshToken(UserInterface $user, string $refreshToken, DomainEnum $domain, bool $persistLogin): RefreshTokenAttemptStatusEnum|array
     // {

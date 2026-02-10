@@ -16,12 +16,12 @@ interface AuthServiceInterface
     /**
      * Attempt to login user
      * @param string[] $credentials
-     * @return \JR\Tracker\Enum\AuthAttemptStatusEnum|array
+     * @return array
      * @author Jan Ribka
      */
     public function attemptLogin(LoginUserData $data, DomainContextEnum $domain): array;
 
-    // public function attemptLogout(): LogoutAttemptStatusEnum;
+    public function attemptLogout(DomainContextEnum $domain): void;
 
     // public function attemptRefreshToken(array $credentials): RefreshTokenAttemptStatusEnum|array;
 }

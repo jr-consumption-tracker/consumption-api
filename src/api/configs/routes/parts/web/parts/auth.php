@@ -13,6 +13,7 @@ function getAuthRoutes(RouteCollectorProxy $api)
         $auth->post("/login", [AuthController::class, "login"])
             ->setName('login')
             ->add(RateLimitMiddleware::class);
+        $auth->post('/logout', [AuthController::class, 'logout']);
     });
 
     return $api;
