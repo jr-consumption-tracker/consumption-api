@@ -89,4 +89,12 @@ class AuthController
 
         return $this->responseFormatter->asJson($response, $loginResult);
     }
+
+
+    public function logout(Request $request, Response $response): Response
+    {
+        $this->authService->attemptLogout(DomainContextEnum::WEB);
+
+        return $response->withStatus(HttpStatusCode::NO_CONTENT->value);
+    }
 }
