@@ -7,9 +7,9 @@ use Slim\Routing\RouteCollectorProxy;
 function getWebRoutes(RouteCollectorProxy $api)
 {
     $api->group('/web', function (RouteCollectorProxy $web) {
-        getAuthRoutes($web);
-        getUserRoutes($web);
-        getVerifyEmailRoutes($web);
+        getWebAuthRoutes($web);
+        getWebUserRoutes($web);
+        getWebVerifyEmailRoutes($web);
     });
 
     return $api;

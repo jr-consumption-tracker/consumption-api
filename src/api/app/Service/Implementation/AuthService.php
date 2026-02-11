@@ -9,7 +9,6 @@ use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\Enum\UserRoleTypeEnum;
 use JR\Tracker\Enum\DomainContextEnum;
 use JR\Tracker\Shared\Helper\UserRoleHelper;
-use JR\Tracker\DataObject\Config\TokenConfig;
 use JR\Tracker\DataObject\Data\LoginUserData;
 use JR\Tracker\Exception\ValidationException;
 use JR\Tracker\DataObject\Data\CookieConfigData;
@@ -22,6 +21,7 @@ use JR\Tracker\Service\Contract\TokenServiceInterface;
 use JR\Tracker\Service\Contract\CookieServiceInterface;
 use JR\Tracker\Service\Contract\SessionServiceInterface;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 
 class AuthService implements AuthServiceInterface
 {
@@ -30,8 +30,8 @@ class AuthService implements AuthServiceInterface
         private readonly HashServiceInterface $hashService,
         private readonly TokenServiceInterface $tokenService,
         private readonly CookieServiceInterface $cookieService,
+        private readonly AuthStrategyFactoryInterface $authStrategyFactory,
         private readonly AuthCookieConfig $authCookieConfig,
-        private readonly TokenConfig $tokenConfig,
         private readonly SessionServiceInterface $sessionService,
         private readonly SignUpEmail $signUpEmail,
     ) {
@@ -62,18 +62,8 @@ class AuthService implements AuthServiceInterface
 
     public function attemptLogin(LoginUserData $data, DomainContextEnum $domain): array
     {
-        // web 
-        //	accessToken 20-30 min
-        //	refresh token 8 dnů s prodlužováním
-
-        // Administraci
-        //	accessToken 10 min
-        //	refreshToken 1 hodina s prodlužování
-
-        // Podle url budu rozlišovat jak nastavit token.
         // V cookie pude path /amin a /, podle toho jestli je administrace nebo web a budou mít různé názvy
         // Do session dat session_log_info a session_log_info_admin, kde bude název kukiny s tokenem. POkud ses zavolá refresh token?? tak se zkontroloje zda je platnost kukiny session a session nexistuje, tak se kukina smaže
-        // Udělat Url helper, který bude zjištovat zda je v url admin
 
         $user = $this->userRepository->getByEmail($data->email);
 
@@ -85,7 +75,11 @@ class AuthService implements AuthServiceInterface
 
     public function attemptLogout(DomainContextEnum $domain): void
     {
-        $refreshToken = $this->cookieService->get($this->authCookieConfig->name);
+        $strategy = $this->authStrategyFactory->create($domain);
+        $authCookieConfig = $strategy->getCookieConfig();
+        $cookieConfigData = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
+
+        $refreshToken = $this->cookieService->get($authCookieConfig->name);
 
         if (!$refreshToken) {
             throw new ValidationException(['noContent' => ['noCookie']], HttpStatusCode::NO_CONTENT->value);
@@ -94,7 +88,7 @@ class AuthService implements AuthServiceInterface
         $user = $this->userRepository->getByRefreshToken($refreshToken, $domain);
 
         if (!$user) {
-            $this->cookieService->delete($this->authCookieConfig->name);
+            $this->cookieService->delete($authCookieConfig->name, $cookieConfigData);
 
             if ($this->sessionService->isActive()) {
                 $this->sessionService->destroy();
@@ -103,7 +97,7 @@ class AuthService implements AuthServiceInterface
             throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
         }
 
-        $this->logout($user, $domain);
+        $this->logout($user, $domain, $authCookieConfig);
     }
 
     // public function attemptRefreshToken(array $credentials): RefreshTokenAttemptStatusEnum|array
@@ -200,7 +194,8 @@ class AuthService implements AuthServiceInterface
                 $this->userRepository->deleteRefreshTokes($user->getUuid());
             }
 
-            $this->cookieService->delete($this->authCookieConfig->name);
+            $cookieConfigData = CookieConfigData::fromAuthCookieConfig($this->authCookieConfig);
+            $this->cookieService->delete($this->authCookieConfig->name, $cookieConfigData);
         }
 
         $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
@@ -240,19 +235,13 @@ class AuthService implements AuthServiceInterface
         ];
     }
 
-    private function logout(UserInterface $user, DomainContextEnum $domain): void
+    private function logout(UserInterface $user, DomainContextEnum $domain, AuthCookieConfig $authCookieConfig): void
     {
         $this->userRepository->deleteRefreshToken($user->getUuid(), $domain);
 
-        $config = new CookieConfigData(
-            $this->authCookieConfig->secure,
-            $this->authCookieConfig->httpOnly,
-            $this->authCookieConfig->sameSite,
-            $this->authCookieConfig->expires,
-            $this->authCookieConfig->path
-        );
+        $config = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
 
-        $this->cookieService->delete($this->authCookieConfig->name, $config);
+        $this->cookieService->delete($authCookieConfig->name, $config);
 
         if ($this->sessionService->isActive()) {
             $this->sessionService->destroy();

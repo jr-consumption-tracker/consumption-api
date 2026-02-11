@@ -82,7 +82,7 @@ class AuthController
             new LoginUserData(
                 $data['email'],
                 $data['password'],
-                $parseBoolean(($credentials['persistLogin'] ?? false))
+                $parseBoolean(($data['persistLogin'] ?? false))
             ),
             DomainContextEnum::WEB
         );

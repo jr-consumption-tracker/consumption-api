@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\DataObject\Data;
 
 use JR\Tracker\Enum\SameSiteEnum;
+use JR\Tracker\DataObject\Config\AuthCookieConfig;
 
 class CookieConfigData
 {
@@ -15,5 +16,17 @@ class CookieConfigData
         public readonly int|string $expires,
         public readonly string $path,
     ) {
+    }
+
+
+    public static function fromAuthCookieConfig(AuthCookieConfig $config): self
+    {
+        return new self(
+            secure: $config->secure,
+            httpOnly: $config->httpOnly,
+            sameSite: $config->sameSite,
+            expires: $config->expires,
+            path: $config->path,
+        );
     }
 }
