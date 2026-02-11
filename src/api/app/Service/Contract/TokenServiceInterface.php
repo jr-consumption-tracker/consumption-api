@@ -19,12 +19,12 @@ interface TokenServiceInterface
      * @return string
      * @author Jan Ribka
      */
-    public function createAccessToken(UserInterface $user, array $roles, ?TokenConfig $config = null): string;
+    public function createAccessToken(UserInterface $user, array $roles, TokenConfig $config): string;
 
-    public function createRefreshToken(UserInterface $user, ?TokenConfig $config = null): string;
+    public function createRefreshToken(UserInterface $user, TokenConfig $config): string;
 
-    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, ?TokenConfig $config = null): ResponseInterface;
+    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, TokenConfig $config): ResponseInterface;
 
-    public function decodeToken(string $token, string $tokenKey, ?string $algorithm = null): object|null;
+    public function decodeToken(string $token, string $tokenKey, string $algorithm): object|null;
 }
 

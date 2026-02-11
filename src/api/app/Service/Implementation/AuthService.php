@@ -6,7 +6,6 @@ namespace JR\Tracker\Service\Implementation;
 
 use JR\Tracker\Mail\SignUpEmail;
 use JR\Tracker\Enum\HttpStatusCode;
-use JR\Tracker\Enum\UserRoleTypeEnum;
 use JR\Tracker\Enum\DomainContextEnum;
 use JR\Tracker\Shared\Helper\UserRoleHelper;
 use JR\Tracker\DataObject\Data\LoginUserData;
@@ -31,7 +30,6 @@ class AuthService implements AuthServiceInterface
         private readonly TokenServiceInterface $tokenService,
         private readonly CookieServiceInterface $cookieService,
         private readonly AuthStrategyFactoryInterface $authStrategyFactory,
-        private readonly AuthCookieConfig $authCookieConfig,
         private readonly SessionServiceInterface $sessionService,
         private readonly SignUpEmail $signUpEmail,
     ) {
@@ -67,7 +65,8 @@ class AuthService implements AuthServiceInterface
 
         $user = $this->userRepository->getByEmail($data->email);
 
-        $this->verifyUser($data, $domain, $user);
+        $strategy = $this->authStrategyFactory->create($domain);
+        $strategy->verifyUser($user, $data->password);
 
         return $this->login($user, $data->persistLogin, $domain);
     }
@@ -133,50 +132,13 @@ class AuthService implements AuthServiceInterface
 
     #region Private methods
 
-    private function verifyUser(LoginUserData $data, DomainContextEnum $domain, ?UserInterface $user): void
-    {
-        $password = $data->password;
-
-        if (!isset($user)) {
-            throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
-        }
-
-        if ($user->getWebLoginRestrictedUntil() && $user->getWebLoginRestrictedUntil() > new \DateTime()) {
-            throw new ValidationException(['forbidden' => ['loginRestricted']], HttpStatusCode::FORBIDDEN->value);
-        }
-
-        if ($user->getIsDisabled()) {
-            throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
-        }
-
-        if (!$this->checkCredentials($user, $password)) {
-            $this->userRepository->logLoginAttempt($domain, $user, false);
-
-            throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
-        }
-
-        $emailVerifiedAt = $user->getEmailVerifiedAt();
-        if (!isset($emailVerifiedAt)) {
-            throw new ValidationException(['forbidden' => ['emailNotVerified']], HttpStatusCode::FORBIDDEN->value);
-        }
-
-        $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
-
-        if (!UserRoleHelper::hasRole($userRoles, UserRoleTypeEnum::EDITOR)) {
-            $this->userRepository->logLoginAttempt($domain, $user, false);
-
-            throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
-        }
-    }
-
-    private function checkCredentials(UserInterface $user, string $password): bool
-    {
-        return password_verify($password, $user->getPassword());
-    }
-
     private function login(UserInterface $user, bool $persistLogin, DomainContextEnum $domain): array
     {
-        $tokenCookie = $this->cookieService->get($this->authCookieConfig->name);
+        $strategy = $this->authStrategyFactory->create($domain);
+        $authCookieConfig = $strategy->getCookieConfig($persistLogin);
+        $tokenConfig = $strategy->getTokenConfig();
+
+        $tokenCookie = $this->cookieService->get($authCookieConfig->name);
 
         $this->userRepository->logLoginAttempt($domain, $user, true);
 
@@ -194,26 +156,18 @@ class AuthService implements AuthServiceInterface
                 $this->userRepository->deleteRefreshTokes($user->getUuid());
             }
 
-            $cookieConfigData = CookieConfigData::fromAuthCookieConfig($this->authCookieConfig);
-            $this->cookieService->delete($this->authCookieConfig->name, $cookieConfigData);
+            $cookieConfigData = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
+            $this->cookieService->delete($authCookieConfig->name, $cookieConfigData);
         }
 
         $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
         $roleValueArray = UserRoleHelper::getRoleValueArrayFromUserRoles($userRoles);
-        $refreshToken = $this->tokenService->createRefreshToken($user);
-
-        $config = new CookieConfigData(
-            $this->authCookieConfig->secure,
-            $this->authCookieConfig->httpOnly,
-            $this->authCookieConfig->sameSite,
-            $persistLogin ? $this->authCookieConfig->expires : "session",
-            $this->authCookieConfig->path
-        );
+        $refreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig);
 
         $this->cookieService->set(
-            $this->authCookieConfig->name,
+            $authCookieConfig->name,
             $refreshToken,
-            $config
+            CookieConfigData::fromAuthCookieConfig($authCookieConfig)
         );
         $this->userRepository->createRefreshToken(
             $user,
@@ -227,7 +181,7 @@ class AuthService implements AuthServiceInterface
 
         $this->sessionService->regenerate();
 
-        $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray);
+        $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
 
         return [
             'email' => $user->getEmail(),

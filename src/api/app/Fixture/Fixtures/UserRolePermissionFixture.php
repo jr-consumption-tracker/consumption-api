@@ -15,6 +15,35 @@ class UserRolePermissionFixture implements FixtureInterface
     public function load(ObjectManager $manager): void
     {
         $rolePermissionMap = [
+            'OWNER' => [
+                'USER_VIEW',
+                'USER_EDIT',
+                'USER_DELETE',
+                'ROLE_ASSIGN',
+                'PERMISSION_EDIT',
+
+                'CONSUMPTION_VIEW',
+                'CONSUMPTION_EDIT',
+                'CONSUMPTION_DELETE',
+
+                'METER_VIEW',
+                'METER_EDIT',
+                'METER_DELETE',
+
+                'PRICE_VIEW',
+                'PRICE_EDIT',
+                'PRICE_DELETE',
+
+                'INVOICE_VIEW',
+                'INVOICE_EDIT',
+                'INVOICE_DELETE',
+
+                'TICKET_VIEW',
+                'TICKET_MANAGE',
+
+                'LOG_VIEW',
+                'SETTINGS_EDIT',
+            ],        
             // SUPER_ADMIN = vše, plná kontrola nad systémem
             'SUPER_ADMIN' => [
                 // uživatelé

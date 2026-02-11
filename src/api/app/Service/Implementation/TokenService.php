@@ -20,14 +20,12 @@ class TokenService implements TokenServiceInterface
 {
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly TokenConfig $config // TODO: remove
     ) {
     }
 
 
-    public function createAccessToken(UserInterface $user, array $roles, ?TokenConfig $config = null): string
+    public function createAccessToken(UserInterface $user, array $roles, TokenConfig $config): string
     {
-        $config = $config ?? $this->config;
 
         $payload = [
             'userInfo' => [
@@ -45,9 +43,8 @@ class TokenService implements TokenServiceInterface
         );
     }
 
-    public function createRefreshToken(UserInterface $user, ?TokenConfig $config = null): string
+    public function createRefreshToken(UserInterface $user, TokenConfig $config): string
     {
-        $config = $config ?? $this->config;
 
         $payload = [
             'uuid' => $user->getUuid(),
@@ -62,9 +59,8 @@ class TokenService implements TokenServiceInterface
         );
     }
 
-    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, ?TokenConfig $config = null): ResponseInterface
+    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, TokenConfig $config): ResponseInterface
     {
-        $config = $config ?? $this->config;
         $authHeader = $request->getHeaderLine('HTTP_AUTHORIZATION');
 
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
@@ -92,10 +88,10 @@ class TokenService implements TokenServiceInterface
         }
     }
 
-    public function decodeToken(string $token, string $tokenKey, ?string $algorithm = null): object|null
+    public function decodeToken(string $token, string $tokenKey, string $algorithm): object|null
     {
         try {
-            $key = new Key($tokenKey, $algorithm ?? $this->config->algorithm);
+            $key = new Key($tokenKey, $algorithm);
 
             return JWT::decode($token, $key);
         } catch (Exception) {
