@@ -6,7 +6,7 @@ use Slim\Routing\RouteCollectorProxy;
 use JR\Tracker\Controller\Web\VerifyEmailController;
 use JR\Tracker\Middleware\ValidateSignatureMiddleware;
 
-function getVerifyEmailRoutes(RouteCollectorProxy $api)
+function getWebVerifyEmailRoutes(RouteCollectorProxy $api)
 {
     $api->group('/verifyEmail', function (RouteCollectorProxy $verifyEmail) {
         $verifyEmail->post('/verify/{uuid}/{hash}', [VerifyEmailController::class, "verify"])

@@ -38,6 +38,7 @@ use JR\Tracker\DataObject\Config\SessionConfig;
 use JR\Tracker\Shared\RouteEntityBindingStrategy;
 use Symfony\Component\Cache\Adapter\RedisAdapter;
 use Symfony\Component\Mime\BodyRendererInterface;
+use JR\Tracker\DataObject\Config\AdminTokenConfig;
 use JR\Tracker\DataObject\Config\AuthCookieConfig;
 use JR\Tracker\Service\Implementation\AuthService;
 use JR\Tracker\Service\Implementation\HashService;
@@ -51,6 +52,7 @@ use JR\Tracker\Service\Implementation\RequestService;
 use JR\Tracker\Service\Implementation\SessionService;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use JR\Tracker\Service\Contract\TokenServiceInterface;
+use JR\Tracker\DataObject\Config\AdminAuthCookieConfig;
 use JR\Tracker\Service\Contract\CookieServiceInterface;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use JR\Tracker\Repository\Implementation\UserRepository;
@@ -62,7 +64,9 @@ use JR\Tracker\Service\Implementation\EntityManagerService;
 use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
 use JR\Tracker\Repository\Implementation\VerifyEmailRepository;
+use JR\Tracker\Strategy\Implementation\AuthStrategyFactory;
 use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
+use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 use JR\Tracker\RequestValidator\Request\Implementation\RequestValidatorFactory;
 use JR\Tracker\RequestValidator\Request\Contract\RequestValidatorFactoryInterface;
 
@@ -126,6 +130,13 @@ return [
         #endregion
 
         #region Configs
+    SessionConfig::class => fn(Config $config) => new SessionConfig(
+        $config->get('session.name', ''),
+        $config->get('session.flash_name', 'flash'),
+        $config->get('session.secure', true),
+        $config->get('session.httponly', true),
+        SameSiteEnum::from($config->get('session.samesite', 'lax'))
+    ),
     TokenConfig::class => fn(Config $config) => new TokenConfig(
         $config->get('token.exp_access'),
         $config->get('token.exp_refresh'),
@@ -133,12 +144,12 @@ return [
         $config->get('token.key_access'),
         $config->get('token.key_refresh')
     ),
-    SessionConfig::class => fn(Config $config) => new SessionConfig(
-        $config->get('session.name', ''),
-        $config->get('session.flash_name', 'flash'),
-        $config->get('session.secure', true),
-        $config->get('session.httponly', true),
-        SameSiteEnum::from($config->get('session.samesite', 'lax'))
+    AdminTokenConfig::class => fn(Config $config) => new AdminTokenConfig(
+        (int) $config->get('admin_token.exp_access'),
+        (int) $config->get('admin_token.exp_refresh'),
+        $config->get('admin_token.algorithm'),
+        $config->get('admin_token.key_access'),
+        $config->get('admin_token.key_refresh')
     ),
     AuthCookieConfig::class => fn(Config $config) => new AuthCookieConfig(
         $config->get('auth_cookie.name'),
@@ -147,6 +158,14 @@ return [
         SameSiteEnum::from($config->get('auth_cookie.same_site')),
         $config->get('auth_cookie.expires'),
         $config->get('auth_cookie.path')
+    ),
+    AdminAuthCookieConfig::class => fn(Config $config) => new AdminAuthCookieConfig(
+        $config->get('admin_auth_cookie.name'),
+        (bool) $config->get('admin_auth_cookie.secure'),
+        (bool) $config->get('admin_auth_cookie.http_only'),
+        SameSiteEnum::from($config->get('admin_auth_cookie.same_site')),
+        (int) $config->get('admin_auth_cookie.expires'),
+        $config->get('admin_auth_cookie.path')
     ),
         #endregion
 
@@ -158,6 +177,9 @@ return [
     RateLimiterFactory::class => fn(RedisAdapter $redisAdapter, Config $config) => new RateLimiterFactory(
         $config->get('limiter'),
         new CacheStorage($redisAdapter)
+    ),
+    AuthStrategyFactoryInterface::class => fn(ContainerInterface $container) => $container->get(
+        AuthStrategyFactory::class
     ),
         #endregion
 

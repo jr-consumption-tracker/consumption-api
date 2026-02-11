@@ -20,46 +20,51 @@ class TokenService implements TokenServiceInterface
 {
     public function __construct(
         private readonly ResponseFactoryInterface $responseFactory,
-        private readonly TokenConfig $config
+        private readonly TokenConfig $config // TODO: remove
     ) {
     }
 
 
-    public function createAccessToken(UserInterface $user, array $roles): string
+    public function createAccessToken(UserInterface $user, array $roles, ?TokenConfig $config = null): string
     {
+        $config = $config ?? $this->config;
+
         $payload = [
             'userInfo' => [
                 'uuid' => $user->getUuid(),
                 'email' => $user->getEmail(),
                 'roles' => $roles
             ],
-            'exp' => $this->config->expAccess
+            'exp' => $config->expAccess
         ];
 
         return JWT::encode(
             $payload,
-            $this->config->keyAccess,
-            $this->config->algorithm
+            $config->keyAccess,
+            $config->algorithm
         );
     }
 
-    public function createRefreshToken(UserInterface $user): string
+    public function createRefreshToken(UserInterface $user, ?TokenConfig $config = null): string
     {
+        $config = $config ?? $this->config;
+
         $payload = [
             'uuid' => $user->getUuid(),
             'email' => $user->getEmail(),
-            'exp' => $this->config->expRefresh,
+            'exp' => $config->expRefresh,
         ];
 
         return JWT::encode(
             $payload,
-            $this->config->keyRefresh,
-            $this->config->algorithm
+            $config->keyRefresh,
+            $config->algorithm
         );
     }
 
-    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
+    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, ?TokenConfig $config = null): ResponseInterface
     {
+        $config = $config ?? $this->config;
         $authHeader = $request->getHeaderLine('HTTP_AUTHORIZATION');
 
         if (!$authHeader || !str_starts_with($authHeader, 'Bearer ')) {
@@ -75,7 +80,7 @@ class TokenService implements TokenServiceInterface
         $token = explode(' ', $authHeader)[1];
 
         try {
-            $key = new Key($this->config->keyAccess, $this->config->algorithm);
+            $key = new Key($config->keyAccess, $config->algorithm);
             $decoded = JWT::decode($token, $key);
 
             $request = $request->withAttribute('uuid', $decoded->userInfo->uuid);
@@ -87,10 +92,10 @@ class TokenService implements TokenServiceInterface
         }
     }
 
-    public function decodeToken(string $token, string $tokenKey): object|null
+    public function decodeToken(string $token, string $tokenKey, ?string $algorithm = null): object|null
     {
         try {
-            $key = new Key($tokenKey, $this->config->algorithm);
+            $key = new Key($tokenKey, $algorithm ?? $this->config->algorithm);
 
             return JWT::decode($token, $key);
         } catch (Exception) {

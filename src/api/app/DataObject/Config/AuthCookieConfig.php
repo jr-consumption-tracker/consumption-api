@@ -17,4 +17,17 @@ class AuthCookieConfig
         public readonly string $path,
     ) {
     }
+
+    public static function fromAuthCookieConfig(AuthCookieConfig $other): self
+    {
+        return new self(
+            $other->name,
+            $other->secure,
+            $other->httpOnly,
+            $other->sameSite,
+            $other->expires,
+            $other->path
+        );
+    }
+    
 }

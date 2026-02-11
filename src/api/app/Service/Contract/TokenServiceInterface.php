@@ -8,6 +8,7 @@ use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
 use JR\Tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\DataObject\Config\TokenConfig;
 
 interface TokenServiceInterface
 {
@@ -18,12 +19,12 @@ interface TokenServiceInterface
      * @return string
      * @author Jan Ribka
      */
-    public function createAccessToken(UserInterface $user, array $roles): string;
+    public function createAccessToken(UserInterface $user, array $roles, ?TokenConfig $config = null): string;
 
-    public function createRefreshToken(UserInterface $user): string;
+    public function createRefreshToken(UserInterface $user, ?TokenConfig $config = null): string;
 
-    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface;
+    public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, ?TokenConfig $config = null): ResponseInterface;
 
-    public function decodeToken(string $token, string $tokenKey): object|null;
+    public function decodeToken(string $token, string $tokenKey, ?string $algorithm = null): object|null;
 }
 

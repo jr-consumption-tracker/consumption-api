@@ -46,6 +46,13 @@ return [
         'key_access' => $_ENV['TOKEN_KEY_ACCESS'],
         'key_refresh' => $_ENV['TOKEN_KEY_REFRESH']
     ],
+    'admin_token' => [
+        'exp_access' => time() + $_ENV['ADMIN_TOKEN_EXP_ACCESS'] ?? 0,
+        'exp_refresh' => time() + $_ENV['ADMIN_TOKEN_EXP_REFRESH'] ?? 0,
+        'algorithm' => 'HS256',
+        'key_access' => $_ENV['ADMIN_TOKEN_KEY_ACCESS'],
+        'key_refresh' => $_ENV['ADMIN_TOKEN_KEY_REFRESH']
+    ],
     'auth_cookie' => [
         'name' => $appSnakeName . '_refreshToken',
         'secure' => $boolean($_ENV['AUTH_COOKIE_SECURE'] ?? true),
@@ -53,6 +60,15 @@ return [
         'same_site' => $_ENV['AUTH_COOKIE_SAME_SITE'] ?? 'lax',
         'expires' => time() + $_ENV['TOKEN_EXP_REFRESH'] ?? 0,
         'path' => $_ENV['AUTH_COOKIE_PATH'] ?? ''
+    ],
+
+    'admin_auth_cookie' => [
+        'name' => $appSnakeName . '_admin_refreshToken',
+        'secure' => $boolean($_ENV['AUTH_COOKIE_SECURE'] ?? true),
+        'http_only' => $boolean($_ENV['AUTH_COOKIE_HTTP_ONLY'] ?? true),
+        'same_site' => $_ENV['AUTH_COOKIE_SAME_SITE'] ?? 'lax',
+        'expires' => time() + $_ENV['ADMIN_TOKEN_EXP_REFRESH'] ?? 0,
+        'path' => $_ENV['AUTH_ADMIN_COOKIE_PATH'] ?? '/admin'
     ],
     'session' => [
         'token_session_name' => $appSnakeName . '_token_session',
