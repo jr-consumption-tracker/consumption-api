@@ -1,7 +1,7 @@
 {
   "name": "consumption-tracker/api",
   "description": "API for Consumption Tracker application",
-  "version": "0.0.1",
+  "version": "0.2.0",
   "authors": [
     {
       "name": "Jan Ribka",
@@ -28,7 +28,11 @@
   },
   "scripts": {
     "test": "composer test:unit",
-    "test:unit": "phpunit --colors=always --testsuite=Unit --testdox"
+    "test:unit": "phpunit --colors=always --testsuite=Unit --testdox",
+    "release:version": "php scripts/releaseVersion.php",
+    "release:analyze": "vendor/bin/phpstan analyse app",
+    "release:changelog": "php scripts/releaseChangelog.php",
+    "release:tag": "php scripts/releaseTag.php"
   },
   "require": {
     "ext-redis": "*",
