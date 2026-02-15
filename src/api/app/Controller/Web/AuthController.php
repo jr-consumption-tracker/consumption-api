@@ -91,10 +91,45 @@ class AuthController
     }
 
 
+    /**
+     * Handles user logout request.
+     *
+     * Terminates the user session for the web domain context.
+     *
+     * @param Request $request HTTP request
+     * @param Response $response HTTP response
+     * @return Response Response with 204 No Content status
+     * @author Jan Ribka
+     */
     public function logout(Request $request, Response $response): Response
     {
         $this->authService->attemptLogout(DomainContextEnum::WEB);
 
         return $response->withStatus(HttpStatusCode::NO_CONTENT->value);
+    }
+
+
+    /**
+     * Handles token refresh request.
+     *
+     * Refreshes the authentication token for the current user session based on provided
+     * query parameters, specifically the persistLogin flag to maintain session persistence.
+     *
+     * @param Request $request HTTP request containing query parameters (persistLogin)
+     * @param Response $response HTTP response
+     * @return Response JSON response with token refresh result
+     * @author Jan Ribka
+     */
+    public function refreshToken(Request $request, Response $response): Response
+    {
+        $parseBoolean = BooleanHelper::parse();
+
+        $queryParams = $request->getQueryParams();
+        $persistLogin = $parseBoolean($queryParams['persistLogin']);
+        $credentials = ['persistLogin' => $persistLogin];
+
+        $result = $this->authService->attemptRefreshToken($credentials, DomainContextEnum::WEB);
+
+        return $this->responseFormatter->asJson($response, $result);
     }
 }

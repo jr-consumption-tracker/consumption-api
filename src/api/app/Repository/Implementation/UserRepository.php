@@ -106,10 +106,13 @@ class UserRepository implements UserRepositoryInterface
             ->findOneBy(['refreshToken' => $refreshToken]);
     }
 
-    public function deleteRefreshTokes(string $idUser): void
+    public function deleteRefreshTokes(string $idUser, DomainContextEnum $domain): void
     {
         $userTokens = $this->entityManagerService->getRepository(UserToken::class)
-            ->findBy(['user' => $idUser]);
+            ->findBy([
+                'user' => $idUser,
+                'domain' => $domain
+            ]);
 
         foreach ($userTokens as $userToken) {
             $this->entityManagerService->remove($userToken);
@@ -149,6 +152,17 @@ class UserRepository implements UserRepositoryInterface
                 'user' => $idUser,
                 'domain' => $domain->value
             ]);
+    }
+
+    public function updateRefreshToken(string $oldToken, string $newToken): void
+    {
+        $userToken = $this->entityManagerService->getRepository(UserToken::class)
+            ->findOneBy(['refreshToken' => $oldToken]);
+
+        if ($userToken) {
+            $userToken->setRefreshToken($newToken);
+            $this->entityManagerService->sync($userToken);
+        }
     }
 
     public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void

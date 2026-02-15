@@ -16,10 +16,11 @@ interface UserRepositoryInterface
     public function logLoginAttempt(DomainContextEnum $domain, UserInterface $user, bool $successful): void;
     public function getRoleByIdUser(string $idUser): array;
     public function refreshTokenExists(string $refreshToken): bool;
-    public function deleteRefreshTokes(string $idUser): void;
+    public function deleteRefreshTokes(string $idUser, DomainContextEnum $domain): void;
     public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain): void;
     public function getByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserInterface;
     public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null;
+    public function updateRefreshToken(string $oldToken, string $newToken): void;
     public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void;
 }
 
