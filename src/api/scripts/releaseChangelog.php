@@ -33,12 +33,33 @@ function parse_tags($commitMessage) {
 }
 
 /**
- * Finds the latest tag matching v* (findLatestTaggedVersion)
+ * Finds the latest tag matching v* from upstream remote
  */
 function get_latest_tag() {
-  $out = [];
-  exec('git describe --tags --abbrev=0 --match "v*" 2>&1', $out, $return);
-  return ($return === 0 && !empty($out)) ? trim($out[0]) : null;
+  exec('git ls-remote --tags upstream 2>&1', $out, $return);
+  if ($return !== 0 || empty($out)) {
+    return null;
+  }
+  
+  $tags = [];
+  foreach ($out as $line) {
+    // Format: "hash refs/tags/v0.2.0" or "hash refs/tags/v0.2.0^{}"
+    if (preg_match('#refs/tags/(v[\d.]+(?:-[a-z]+\.\d+)?)(?:\^\{\})?$#', $line, $m)) {
+      $tags[] = $m[1];
+    }
+  }
+  
+  if (empty($tags)) {
+    return null;
+  }
+  
+  // Remove duplicates and sort by version (descending)
+  $tags = array_unique($tags);
+  usort($tags, function($a, $b) {
+    return version_compare($b, $a);
+  });
+  
+  return $tags[0];
 }
 
 /**
@@ -61,10 +82,10 @@ $latestTag = get_latest_tag();
 $baseTag = $latestTag;
 $releaseVersion = "v$currentVersion";
 
-// 2. Fetch commits
+// 2. Fetch commits from upstream/main
 $format = "%s|%h|%an";
-// If no latest tag, show history up to 50 commits
-$range = $baseTag ? "$baseTag..HEAD" : "-n 50 HEAD";
+// Compare upstream/main against the latest tag
+$range = $baseTag ? "$baseTag..upstream/main" : "-n 50 upstream/main";
 $cmd = "git log $range --format=\"$format\" 2>&1";
 exec($cmd, $rawCommits, $return);
 
@@ -134,7 +155,7 @@ if ($numContributors === 1) {
 }
 
 $changelog = "\n## TODO NÁZEV VERZE\n";
-$changelog .= "<!-- generováno porovnáním {$baseTag}..HEAD -->\n";
+$changelog .= "<!-- generováno porovnáním $range -->\n";
 $changelog .= "_{$nowFormatted}_\n\n";
 $changelog .= $thanksLine . " Zde je přehled změn ✨:\n\n";
 $changelog .= implode("\n", $changes) . "\n\n";
