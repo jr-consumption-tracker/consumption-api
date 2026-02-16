@@ -63,6 +63,8 @@ use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Implementation\EntityManagerService;
 use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
+use JR\Tracker\Service\Implementation\LoggerService;
+use JR\Tracker\Service\Contract\LoggerServiceInterface;
 use JR\Tracker\Repository\Implementation\VerifyEmailRepository;
 use JR\Tracker\Strategy\Implementation\AuthStrategyFactory;
 use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
@@ -209,6 +211,9 @@ return [
     ),
     VerifyEmailServiceInterface::class => fn(ContainerInterface $container) => $container->get(
         VerifyEmailService::class
+    ),
+    LoggerServiceInterface::class => fn(ContainerInterface $container) => $container->get(
+        LoggerService::class
     ),
         #endregion
 

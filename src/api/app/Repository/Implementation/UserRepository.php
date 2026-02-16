@@ -15,6 +15,7 @@ use JR\Tracker\Entity\User\Implementation\UserToken;
 use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
 use JR\Tracker\Entity\User\Implementation\UserLoginHistory;
+use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
 
@@ -71,6 +72,11 @@ class UserRepository implements UserRepositoryInterface
         });
 
         return $user;
+    }
+
+    public function update(UserInterface $user): void
+    {
+        $this->entityManagerService->sync($user);
     }
 
     public function getByEmail(string $email): ?UserInterface
@@ -171,6 +177,22 @@ class UserRepository implements UserRepositoryInterface
 
         if ($userToken) {
             $this->entityManagerService->remove($userToken);
+            $this->entityManagerService->flush();
+        }
+    }
+
+    public function getVerificationToken(string $token): ?UserVerifyEmail
+    {
+        return $this->entityManagerService->getRepository(UserVerifyEmail::class)
+            ->findOneBy(['token' => $token]);
+    }
+
+    public function deleteVerificationToken(string $token): void
+    {
+        $verificationToken = $this->getVerificationToken($token);
+
+        if ($verificationToken) {
+            $this->entityManagerService->remove($verificationToken);
             $this->entityManagerService->flush();
         }
     }

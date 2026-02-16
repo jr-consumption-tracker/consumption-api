@@ -8,10 +8,12 @@ use JR\Tracker\Enum\DomainContextEnum;
 use JR\Tracker\DataObject\Data\RegisterUserData;
 use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Entity\User\Contract\UserTokenInterface;
+use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 
 interface UserRepositoryInterface
 {
     public function create(RegisterUserData $data): UserInterface;
+    public function update(UserInterface $user): void;
     public function getByEmail(string $email): ?UserInterface;
     public function logLoginAttempt(DomainContextEnum $domain, UserInterface $user, bool $successful): void;
     public function getRoleByIdUser(string $idUser): array;
@@ -22,5 +24,7 @@ interface UserRepositoryInterface
     public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null;
     public function updateRefreshToken(string $oldToken, string $newToken): void;
     public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void;
+    public function getVerificationToken(string $token): ?UserVerifyEmail;
+    public function deleteVerificationToken(string $token): void;
 }
 

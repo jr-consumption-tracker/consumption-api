@@ -6,5 +6,6 @@ namespace JR\Tracker\Service\Contract;
 
 interface VerifyEmailServiceInterface
 {
+    public function attemptVerifyEmail(string $token): void;
     public function createEmailVerificationLink(string $email, int $expiresHours): ?string;
 }

@@ -67,6 +67,11 @@ class UserVerifyEmail implements UserVerifyEmailInterface
     {
         return $this->createdAt;
     }
+    public function getIsExpired(): bool
+    {
+        $now = new \DateTime();
+        return $this->expiresAt < $now;
+    }
 
 
     // Setters

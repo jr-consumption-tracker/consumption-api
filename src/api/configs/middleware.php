@@ -9,6 +9,7 @@ use JR\Tracker\Enum\AppEnvironmentEnum;
 use Clockwork\Support\Slim\ClockworkMiddleware;
 use JR\Tracker\Middleware\StartSessionMiddleware;
 use JR\Tracker\Middleware\ValidationExceptionMiddleware;
+use JR\Tracker\Middleware\VerificationExceptionMiddleware;
 
 return function (App $app) {
     $container = $app->getContainer();
@@ -18,6 +19,7 @@ return function (App $app) {
         $app->add('csrf');
     }
 
+    $app->add(VerificationExceptionMiddleware::class);
     $app->add(ValidationExceptionMiddleware::class);
     $app->add(StartSessionMiddleware::class);
 

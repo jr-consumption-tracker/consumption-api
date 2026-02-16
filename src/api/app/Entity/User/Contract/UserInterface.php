@@ -18,5 +18,6 @@ interface UserInterface
     // Setters
     public function setUuid(): self;
     public function setEmail(string $email): self;
+    public function setEmailVerifiedAt(): self;
     public function setPassword(string $password): self;
 }
