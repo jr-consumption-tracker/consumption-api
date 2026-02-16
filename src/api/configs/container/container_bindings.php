@@ -69,6 +69,8 @@ use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
 use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 use JR\Tracker\RequestValidator\Request\Implementation\RequestValidatorFactory;
 use JR\Tracker\RequestValidator\Request\Contract\RequestValidatorFactoryInterface;
+use JR\Tracker\Service\Implementation\CsrfService;
+use Slim\Csrf\Guard;
 
 // TODO: Pokud budu chtít filtrovat data podle uživatele, tak to musím udělat pomocí filtrů. Video 129
 return [
@@ -230,6 +232,11 @@ return [
     
         return $twig;
     },
+    'csrf' => fn(ResponseFactoryInterface $responseFactory, CsrfService $csrf) => new Guard(
+        $responseFactory,
+        failureHandler: $csrf->failureHandler(),
+        persistentTokenMode: true
+    ),
     Filesystem::class => function (Config $config) {
         $digitalOcean = function (array $options) {
             $client = new S3Client(

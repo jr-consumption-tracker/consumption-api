@@ -13,6 +13,7 @@ use JR\Tracker\Exception\ValidationException;
 use JR\Tracker\DataObject\Data\CookieConfigData;
 use JR\Tracker\DataObject\Data\RegisterUserData;
 use JR\Tracker\DataObject\Config\AuthCookieConfig;
+use JR\Tracker\DataObject\Config\TokenConfig;
 use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Service\Contract\AuthServiceInterface;
 use JR\Tracker\Service\Contract\HashServiceInterface;
@@ -99,36 +100,26 @@ class AuthService implements AuthServiceInterface
         $this->logout($user, $domain, $authCookieConfig);
     }
 
-    // public function attemptRefreshToken(array $credentials): RefreshTokenAttemptStatusEnum|array
-    // {
-    //     $persistLogin = (bool) ($credentials['persistLogin'] ?? false);
-    //     $refreshToken = $this->cookieService->get($this->authCookieConfig->name);
+    public function attemptRefreshToken(array $credentials, DomainContextEnum $domain): array
+    {
+        $persistLogin = (bool) ($credentials['persistLogin'] ?? false);
 
-    //     if (!$refreshToken) {
-    //         return RefreshTokenAttemptStatusEnum::NO_COOKIE;
-    //     }
+        $strategy = $this->authStrategyFactory->create($domain);
+        $authCookieConfig = $strategy->getCookieConfig($persistLogin);
+        $tokenConfig = $strategy->getTokenConfig();
 
-    //     $this->cookieService->delete($this->authCookieConfig->name);
-    //     $user = $this->userRepository->getByRefreshToken($refreshToken);
+        $result = $this->verifyRefreshToken($authCookieConfig, $tokenConfig, $domain);
 
-    //     // Detected refresh token reuse!
-    //     if (!$user) {
-    //         $decoded = $this->tokenService->decodeToken($refreshToken, $this->tokenConfig->keyRefresh);
 
-    //         if (!$decoded) {
-    //             return RefreshTokenAttemptStatusEnum::NO_USER;
-    //         }
 
-    //         $hackedLogin = $decoded->login;
-    //         $hackedUser = $this->userRepository->getByLogin($hackedLogin);
-    //         // TODO: O jakou se jedna domenu, by se mohlo nacitat z url. V enumu pro domeny bude funkce na to
-    //         $this->userRepository->deleteRefreshTokes($hackedUser->getId());
-
-    //         return RefreshTokenAttemptStatusEnum::NO_USER;
-    //     }
-
-    //     return $this->refreshToken($user, $refreshToken, DomainEnum::WEB, $persistLogin);
-    // }
+        return $this->refreshToken(
+            $result['user'],
+            $result['refreshToken'],
+            $authCookieConfig,
+            $tokenConfig,
+            $domain,
+        );
+    }
 
     #region Private methods
 
@@ -153,7 +144,7 @@ class AuthService implements AuthServiceInterface
             // Detected refresh token reuse!
             if (!$foundToken) {
                 // Clear out ALL previous refresh tokens
-                $this->userRepository->deleteRefreshTokes($user->getUuid());
+                $this->userRepository->deleteRefreshTokes($user->getUuid(), $domain);
             }
 
             $cookieConfigData = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
@@ -202,44 +193,75 @@ class AuthService implements AuthServiceInterface
         }
     }
 
-    // private function refreshToken(UserInterface $user, string $refreshToken, DomainEnum $domain, bool $persistLogin): RefreshTokenAttemptStatusEnum|array
-    // {
-    //     $decoded = $this->tokenService->decodeToken($refreshToken, $this->tokenConfig->keyRefresh);
+    public function verifyRefreshToken(AuthCookieConfig $authCookieConfig, TokenConfig $tokenConfig, DomainContextEnum $domain): array
+    {
+        $refreshToken = $this->cookieService->get($authCookieConfig->name);
 
-    //     if (!$decoded) {
-    //         $this->userRepository->deleteRefreshTokenByUserIdAndDomain($user->getId(), $domain);
-    //     }
-    //     if ($user->getUuid() !== $decoded->uuid) {
-    //         return RefreshTokenAttemptStatusEnum::USER_NOT_EQUAL;
-    //     }
+        if (!$refreshToken) {
+            throw new ValidationException(['unauthorized' => ['noCookie']], HttpStatusCode::UNAUTHORIZED->value);
+        }
 
-    //     // Refresh token was still valid
-    //     $userRoles = $this->userRepository->getUserRolesByUserId($user->getId());
-    //     $roleValueArray = UserRoleHelper::getRoleValueArrayFromUserRoles($userRoles);
-    //     $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray);
-    //     $newRefreshToken = $this->tokenService->createRefreshToken($user);
+        $cookieConfigData = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
+        $this->cookieService->delete($authCookieConfig->name, $cookieConfigData);
+        $user = $this->userRepository->getByRefreshToken($refreshToken, $domain);
 
-    //     $this->userRepository->createUpdateRefreshToken($user, $newRefreshToken, $domain);
+        // Detected refresh token reuse!
+        if (!$user) {
+            $decoded = $this->tokenService->decodeToken($refreshToken, $tokenConfig->keyRefresh, $tokenConfig->algorithm);
 
-    //     $config = new CookieConfigData(
-    //         $this->authCookieConfig->secure,
-    //         $this->authCookieConfig->httpOnly,
-    //         $this->authCookieConfig->sameSite,
-    //         $persistLogin ? $this->authCookieConfig->expires : "session",
-    //         $this->authCookieConfig->path
-    //     );
+            if (!$decoded) {
+                throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
+            }
 
-    //     $this->cookieService->set(
-    //         $this->authCookieConfig->name,
-    //         $newRefreshToken,
-    //         $config
-    //     );
+            $hackedLogin = $decoded->login;
+            $hackedUser = $this->userRepository->getByEmail($hackedLogin);
 
-    //     return [
-    //         'login' => $user->getLogin(),
-    //         'accessToken' => $accessToken
-    //     ];
-    // }
+            $this->userRepository->deleteRefreshTokes($hackedUser->getUuid(), $domain);
+
+            throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
+        }
+
+        return [
+            'user' => $user,
+            'refreshToken' => $refreshToken
+        ];
+    }
+
+    private function refreshToken(UserInterface $user, string $refreshToken, AuthCookieConfig $authCookieConfig, TokenConfig $tokenConfig, DomainContextEnum $domain): array
+    {
+        $decoded = $this->tokenService->decodeToken($refreshToken, $tokenConfig->keyRefresh, $tokenConfig->algorithm);
+
+        if (!$decoded) {
+            $this->userRepository->deleteRefreshToken($user->getUuid(), $domain);
+        }
+        if ($user->getUuid() !== $decoded->uuid) {
+            throw new ValidationException(['forbidden' => ['invalidToken']], HttpStatusCode::FORBIDDEN->value);
+        }
+
+        // Refresh token was still valid
+        $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
+        $roleValueArray = UserRoleHelper::getRoleValueArrayFromUserRoles($userRoles);
+        $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
+        $newRefreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig);
+
+        $this->userRepository->updateRefreshToken($refreshToken, $newRefreshToken);
+
+        $this->cookieService->set(
+            $authCookieConfig->name,
+            $newRefreshToken,
+            CookieConfigData::fromAuthCookieConfig($authCookieConfig)
+        );
+
+        if (!$this->sessionService->isActive()) {
+            $this->sessionService->start();
+        }
+        $this->sessionService->regenerate();
+
+        return [
+            'email' => $user->getEmail(),
+            'accessToken' => $accessToken
+        ];
+    }
 
 
     #region

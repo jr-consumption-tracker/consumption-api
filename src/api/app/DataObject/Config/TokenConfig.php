@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace JR\Tracker\DataObject\Config;
 
-use DateTime;
-
 class TokenConfig
 {
     public function __construct(

@@ -26,6 +26,7 @@ return [
     'log_errors' => true,
     'log_error_details' => true,
     'client_app_url' => $_ENV['CLIENT_APP_URL'] ?? 'http://localhost:3005',
+    'csrf_enabled' => $boolean($_ENV['CSRF_ENABLED'] ?? true),
     'doctrine' => [
         'dev_mode' => AppEnvironmentEnum::isDevelopment($appEnv),
         'cache_dir' => STORAGE_PATH . '/cache/doctrine',

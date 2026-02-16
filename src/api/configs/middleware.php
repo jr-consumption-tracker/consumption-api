@@ -14,6 +14,10 @@ return function (App $app) {
     $container = $app->getContainer();
     $config = $container->get(Config::class);
 
+    if ($config->get('csrf_enabled')) {
+        $app->add('csrf');
+    }
+
     $app->add(ValidationExceptionMiddleware::class);
     $app->add(StartSessionMiddleware::class);
 

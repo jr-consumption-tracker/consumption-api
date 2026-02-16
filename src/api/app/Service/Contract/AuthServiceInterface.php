@@ -20,8 +20,6 @@ interface AuthServiceInterface
      * @author Jan Ribka
      */
     public function attemptLogin(LoginUserData $data, DomainContextEnum $domain): array;
-
     public function attemptLogout(DomainContextEnum $domain): void;
-
-    // public function attemptRefreshToken(array $credentials): RefreshTokenAttemptStatusEnum|array;
+    public function attemptRefreshToken(array $credentials, DomainContextEnum $domain): array;
 }

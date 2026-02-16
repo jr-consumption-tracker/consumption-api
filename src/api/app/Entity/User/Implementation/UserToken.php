@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace JR\Tracker\Entity\User\Implementation;
 
-use DateTime;
 use Doctrine\ORM\Mapping\Id;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
