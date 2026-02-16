@@ -125,7 +125,7 @@ class AuthController
         $parseBoolean = BooleanHelper::parse();
 
         $queryParams = $request->getQueryParams();
-        $persistLogin = $parseBoolean($queryParams['persistLogin']);
+        $persistLogin = $parseBoolean($queryParams['persistLogin'] ?? false);
         $credentials = ['persistLogin' => $persistLogin];
 
         $result = $this->authService->attemptRefreshToken($credentials, DomainContextEnum::WEB);

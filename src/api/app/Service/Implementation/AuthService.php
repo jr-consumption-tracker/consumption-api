@@ -102,7 +102,7 @@ class AuthService implements AuthServiceInterface
 
     public function attemptRefreshToken(array $credentials, DomainContextEnum $domain): array
     {
-        $persistLogin = (bool) ($credentials['persistLogin'] ?? false);
+        $persistLogin = (bool) ($credentials['persistLogin']);
 
         $strategy = $this->authStrategyFactory->create($domain);
         $authCookieConfig = $strategy->getCookieConfig($persistLogin);
@@ -213,8 +213,8 @@ class AuthService implements AuthServiceInterface
                 throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
             }
 
-            $hackedLogin = $decoded->login;
-            $hackedUser = $this->userRepository->getByEmail($hackedLogin);
+            $hackedEmail = $decoded->email;
+            $hackedUser = $this->userRepository->getByEmail($hackedEmail);
 
             $this->userRepository->deleteRefreshTokes($hackedUser->getUuid(), $domain);
 

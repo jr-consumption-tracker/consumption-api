@@ -13,6 +13,7 @@ function getAdminAuthRoutes(RouteCollectorProxy $api)
             ->setName('login')
             ->add(RateLimitMiddleware::class);
         $auth->post('/logout', [AuthController::class, 'logout']);
+        $auth->get('/refreshToken', [AuthController::class, 'refreshToken']);
     });
 
     return $api;
