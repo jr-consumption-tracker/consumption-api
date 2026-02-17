@@ -11,5 +11,7 @@ interface UserVerifyEmailInterface
     public function getToken(): string;
 
     // Setters       
+    public function setToken(): self;
     public function setExpiresAt(int $hours): self;
+    public function setCreatedAt(): self;
 }

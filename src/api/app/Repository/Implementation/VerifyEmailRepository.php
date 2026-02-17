@@ -4,41 +4,35 @@ declare(strict_types=1);
 
 namespace JR\Tracker\Repository\Implementation;
 
-use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
-use JR\Tracker\Entity\User\Contract\UserVerifyEmailInterface;
-use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
 use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
+use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
+use JR\Tracker\Entity\User\Contract\UserVerifyEmailInterface;
+use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 
 class VerifyEmailRepository implements VerifyEmailRepositoryInterface
 {
     public function __construct(
-        private readonly EntityManagerServiceInterface $entityManagerService,
+        private readonly EntityManagerServiceInterface $entityManager,
     ) {
+    }
+
+    public function createVerifyEmail(UserVerifyEmailInterface $verifyEmail): void
+    {
+        $this->entityManager->sync($verifyEmail);
+    }
+
+    public function updateVerifyEmail(UserVerifyEmailInterface $verifyEmail): void
+    {
+        $this->entityManager->sync($verifyEmail);
     }
 
     public function getActiveTokenByEmail(string $email): ?UserVerifyEmailInterface
     {
-        $repository = $this->entityManagerService->getRepository(UserVerifyEmail::class);
-
-        $qb = $repository->createQueryBuilder('uve');
-        $qb
-            ->where('uve.email = :email')
-            ->andWhere('uve.usedAt IS NULL')
-            ->andWhere('uve.expiresAt > :now')
-            ->setParameter('email', $email)
-            ->setParameter('now', new \DateTimeImmutable());
-
-        return $qb->getQuery()->getOneOrNullResult();
+        return $this->entityManager->getRepository(UserVerifyEmail::class)
+            ->findOneBy(
+                [
+                    'email' => $email,
+                ]
+            );
     }
-
-    public function updateVerifyEmail(UserVerifyEmailInterface $userVerifyEmil): void
-    {
-        $this->entityManagerService->sync($userVerifyEmil);
-    }
-
-    public function createVerifyEmail(UserVerifyEmailInterface $userVerifyEmil): int
-    {
-        return $this->entityManagerService->sync($userVerifyEmil);
-    }
-
 }

@@ -28,24 +28,29 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
         $v->rule('required', 'confirmPassword')->message('confirmPasswordRequired');
 
         // Validate email
-        $v->rule('email', 'email')->message('emailInvalid');
-        $v->rule('regex', 'email', '/' . EMAIL_END_REGEX . '/')->message('emailInvalid');
-        $v->rule(
-            fn($field, $value, $params, $fields) => !$this->entityManagerService->getRepository(User::class)->count(
-                ['email' => $value]
-            ),
-            'email'
-        )->message('emailExists');
-
+        if (!empty($data['email'])) {
+            $v->rule('email', 'email')->message('emailInvalid');
+            $v->rule('regex', 'email', '/' . EMAIL_END_REGEX . '/')->message('emailInvalid');
+            $v->rule(
+                fn($field, $value, $params, $fields) => !$this->entityManagerService->getRepository(User::class)->count(
+                    ['email' => $value]
+                ),
+                'email'
+            )->message('emailExists');
+        }
         // Validate password
-        $v->rule('regex', 'password', '/' . UPPERCASE_REGEX . '/')->message('passwordUpperCase');
-        $v->rule('regex', 'password', '/' . LOWERCASE_REGEX . '/')->message('passwordLoweCase');
-        $v->rule('regex', 'password', '/' . NUMBERS_REGEX . '/')->message('passwordNumbers');
-        $v->rule('lengthMin', "password", 8)->message('passwordMinLength|8');
-        $v->rule('lengthMax', "password", 24)->message('passwordMaxLength|24');
+        if (!empty($data['password'])) {
+            $v->rule('regex', 'password', '/' . UPPERCASE_REGEX . '/')->message('passwordUpperCase');
+            $v->rule('regex', 'password', '/' . LOWERCASE_REGEX . '/')->message('passwordLoweCase');
+            $v->rule('regex', 'password', '/' . NUMBERS_REGEX . '/')->message('passwordNumbers');
+            $v->rule('lengthMin', "password", 8)->message('passwordMinLength|8');
+            $v->rule('lengthMax', "password", 24)->message('passwordMaxLength|24');
+        }
 
         // Validate confirm password
-        $v->rule('equals', 'confirmPassword', 'password')->message('confirmPasswordOneOf');
+        if (!empty($data['confirmPassword'])) {
+            $v->rule('equals', 'confirmPassword', 'password')->message('confirmPasswordOneOf');
+        }
 
         if (!$v->validate()) {
             throw new ValidationException($v->errors(), HttpStatusCode::BAD_REQUEST->value);

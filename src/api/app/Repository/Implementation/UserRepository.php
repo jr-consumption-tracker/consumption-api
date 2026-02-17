@@ -15,6 +15,7 @@ use JR\Tracker\Entity\User\Implementation\UserToken;
 use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
 use JR\Tracker\Entity\User\Implementation\UserLoginHistory;
+use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
 
@@ -73,6 +74,11 @@ class UserRepository implements UserRepositoryInterface
         return $user;
     }
 
+    public function update(UserInterface $user): void
+    {
+        $this->entityManagerService->sync($user);
+    }
+
     public function getByEmail(string $email): ?UserInterface
     {
         return $this->entityManagerService->getRepository(User::class)
@@ -121,13 +127,14 @@ class UserRepository implements UserRepositoryInterface
         $this->entityManagerService->flush();
     }
 
-    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain): void
+    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt): void
     {
         $userToken = new UserToken();
 
         $userToken
             ->setDomain($domain)
             ->setRefreshToken($refreshToken)
+            ->setExpiresAt($expiresAt)
             ->setUser($user);
 
         $this->entityManagerService->sync($userToken);
@@ -154,13 +161,15 @@ class UserRepository implements UserRepositoryInterface
             ]);
     }
 
-    public function updateRefreshToken(string $oldToken, string $newToken): void
+    public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt): void
     {
         $userToken = $this->entityManagerService->getRepository(UserToken::class)
             ->findOneBy(['refreshToken' => $oldToken]);
 
         if ($userToken) {
-            $userToken->setRefreshToken($newToken);
+            $userToken
+                ->setRefreshToken($newToken)
+                ->setExpiresAt($expiresAt);
             $this->entityManagerService->sync($userToken);
         }
     }
@@ -171,6 +180,22 @@ class UserRepository implements UserRepositoryInterface
 
         if ($userToken) {
             $this->entityManagerService->remove($userToken);
+            $this->entityManagerService->flush();
+        }
+    }
+
+    public function getVerificationToken(string $token): ?UserVerifyEmail
+    {
+        return $this->entityManagerService->getRepository(UserVerifyEmail::class)
+            ->findOneBy(['token' => $token]);
+    }
+
+    public function deleteVerificationToken(string $token): void
+    {
+        $verificationToken = $this->getVerificationToken($token);
+
+        if ($verificationToken) {
+            $this->entityManagerService->remove($verificationToken);
             $this->entityManagerService->flush();
         }
     }

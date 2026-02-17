@@ -57,7 +57,7 @@ class UserLoginHistory implements UserLoginHistoryInterface
     {
         return $this->isSuccessful;
     }
-    public function getUser(): User
+    public function getUser(): UserInterface
     {
         return $this->user;
     }
@@ -78,7 +78,7 @@ class UserLoginHistory implements UserLoginHistoryInterface
         $this->isSuccessful = $isSuccessful;
         return $this;
     }
-    public function setUser(UserInterface $user): self
+    public function setUser(User $user): self
     {
         $this->user = $user;
         return $this;

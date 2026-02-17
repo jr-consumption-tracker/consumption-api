@@ -149,6 +149,11 @@ class User implements UserInterface
         $this->email = $email;
         return $this;
     }
+    public function setEmailVerifiedAt(): self
+    {
+        $this->emailVerifiedAt = new \DateTimeImmutable();
+        return $this;
+    }
     public function setPassword(string $hashedPassword): self
     {
         $this->password = $hashedPassword;

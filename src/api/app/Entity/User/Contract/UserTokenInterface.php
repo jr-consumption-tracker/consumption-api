@@ -10,4 +10,6 @@ interface UserTokenInterface
 {
     public function getUser(): UserInterface;
     public function setRefreshToken(string|null $refreshToken): UserToken;
+    public function setExpiresAt(\DateTime $expiresAt): self;
+    public function getExpiresAt(): \DateTime;
 }

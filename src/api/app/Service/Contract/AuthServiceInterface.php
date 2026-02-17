@@ -15,7 +15,8 @@ interface AuthServiceInterface
 
     /**
      * Attempt to login user
-     * @param string[] $credentials
+     * @param LoginUserData $data
+     * @param DomainContextEnum $domain
      * @return array
      * @author Jan Ribka
      */

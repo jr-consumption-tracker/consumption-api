@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\Entity\User\Implementation;
 
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Index;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -17,6 +18,7 @@ use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 
 #[Entity]
 #[Table('userToken')]
+#[Index(columns: ['expiresAt'])]
 class UserToken implements UserTokenInterface
 {
     #[Id]
@@ -33,6 +35,9 @@ class UserToken implements UserTokenInterface
     #[ManyToOne(inversedBy: 'idUser', targetEntity: User::class)]
     #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
     private User $user;
+
+    #[Column]
+    private \DateTime $expiresAt;
 
 
 
@@ -57,6 +62,11 @@ class UserToken implements UserTokenInterface
         return $this->refreshToken;
     }
 
+    public function getExpiresAt(): \DateTime
+    {
+        return $this->expiresAt;
+    }
+
 
     // Setters
     public function setUser(UserInterface $user): self
@@ -74,6 +84,12 @@ class UserToken implements UserTokenInterface
     public function setRefreshToken(string|null $refreshToken): self
     {
         $this->refreshToken = $refreshToken;
+        return $this;
+    }
+
+    public function setExpiresAt(\DateTime $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
         return $this;
     }
 }
