@@ -11,5 +11,4 @@ interface VerifyEmailRepositoryInterface
     public function getActiveTokenByEmail(string $email): ?UserVerifyEmailInterface;
     public function updateVerifyEmail(UserVerifyEmailInterface $userVerifyEmil): void;
     public function createVerifyEmail(UserVerifyEmailInterface $userVerifyEmil): void;
-    public function deleteExpiredTokens(): int;
 }

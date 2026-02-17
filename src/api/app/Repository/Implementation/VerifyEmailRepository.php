@@ -35,15 +35,4 @@ class VerifyEmailRepository implements VerifyEmailRepositoryInterface
                 ]
             );
     }
-
-    public function deleteExpiredTokens(): int
-    {
-        $query = $this->entityManager->createQuery(
-            'DELETE FROM JR\Tracker\Entity\User\Implementation\UserVerifyEmail e 
-             WHERE e.expiresAt < :now'
-        );
-        $query->setParameter('now', new \DateTime());
-
-        return $query->execute();
-    }
 }
