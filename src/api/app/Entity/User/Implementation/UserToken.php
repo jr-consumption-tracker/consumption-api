@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\Entity\User\Implementation;
 
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\Index;
 use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
@@ -17,6 +18,7 @@ use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 
 #[Entity]
 #[Table('userToken')]
+#[Index(columns: ['expiresAt'])]
 class UserToken implements UserTokenInterface
 {
     #[Id]
