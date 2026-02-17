@@ -8,8 +8,8 @@ function getWebRoutes(RouteCollectorProxy $api)
 {
     $api->group('/web', function (RouteCollectorProxy $web) {
         getWebAuthRoutes($web);
-        getWebUserRoutes($web);
         getWebVerifyEmailRoutes($web);
+        getWebUserRoutes($web);
     });
 
     return $api;

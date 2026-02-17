@@ -1,2 +1,2 @@
-# IDE
-.vscode/
+# Linter Cache
+.php-cs-fixer.cache

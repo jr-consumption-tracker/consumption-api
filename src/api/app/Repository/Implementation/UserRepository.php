@@ -127,13 +127,14 @@ class UserRepository implements UserRepositoryInterface
         $this->entityManagerService->flush();
     }
 
-    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain): void
+    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt): void
     {
         $userToken = new UserToken();
 
         $userToken
             ->setDomain($domain)
             ->setRefreshToken($refreshToken)
+            ->setExpiresAt($expiresAt)
             ->setUser($user);
 
         $this->entityManagerService->sync($userToken);
@@ -160,13 +161,15 @@ class UserRepository implements UserRepositoryInterface
             ]);
     }
 
-    public function updateRefreshToken(string $oldToken, string $newToken): void
+    public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt): void
     {
         $userToken = $this->entityManagerService->getRepository(UserToken::class)
             ->findOneBy(['refreshToken' => $oldToken]);
 
         if ($userToken) {
-            $userToken->setRefreshToken($newToken);
+            $userToken
+                ->setRefreshToken($newToken)
+                ->setExpiresAt($expiresAt);
             $this->entityManagerService->sync($userToken);
         }
     }

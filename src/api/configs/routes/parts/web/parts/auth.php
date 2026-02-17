@@ -11,7 +11,7 @@ function getWebAuthRoutes(RouteCollectorProxy $api)
     $api->group('/auth', function (RouteCollectorProxy $auth) {
         $auth->post('/register', [AuthController::class, "register"]);
         $auth->post("/login", [AuthController::class, "login"])
-            ->setName('login')
+            ->setName('web_login')
             ->add(RateLimitMiddleware::class);
         $auth->post('/logout', [AuthController::class, 'logout']);
         $auth->get('/refreshToken', [AuthController::class, 'refreshToken']);

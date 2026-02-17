@@ -34,6 +34,9 @@ class UserToken implements UserTokenInterface
     #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
     private User $user;
 
+    #[Column]
+    private \DateTime $expiresAt;
+
 
 
     // Getters
@@ -57,6 +60,11 @@ class UserToken implements UserTokenInterface
         return $this->refreshToken;
     }
 
+    public function getExpiresAt(): \DateTime
+    {
+        return $this->expiresAt;
+    }
+
 
     // Setters
     public function setUser(UserInterface $user): self
@@ -74,6 +82,12 @@ class UserToken implements UserTokenInterface
     public function setRefreshToken(string|null $refreshToken): self
     {
         $this->refreshToken = $refreshToken;
+        return $this;
+    }
+
+    public function setExpiresAt(\DateTime $expiresAt): self
+    {
+        $this->expiresAt = $expiresAt;
         return $this;
     }
 }

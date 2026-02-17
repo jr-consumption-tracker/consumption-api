@@ -19,12 +19,11 @@ interface UserRepositoryInterface
     public function getRoleByIdUser(string $idUser): array;
     public function refreshTokenExists(string $refreshToken): bool;
     public function deleteRefreshTokes(string $idUser, DomainContextEnum $domain): void;
-    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain): void;
+    public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt): void;
     public function getByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserInterface;
     public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null;
-    public function updateRefreshToken(string $oldToken, string $newToken): void;
+    public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt): void;
     public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void;
     public function getVerificationToken(string $token): ?UserVerifyEmail;
     public function deleteVerificationToken(string $token): void;
 }
-

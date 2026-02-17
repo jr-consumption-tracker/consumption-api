@@ -3,4 +3,7 @@ parameters:
   treatPhpDocTypesAsCertain: false
   excludePaths:
     - vendor/*
+  bootstrapFiles:
+    - configs/path_constants.php
+    - constants/regexes.php
   

@@ -8,6 +8,7 @@ use JR\Tracker\Config;
 use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\Exception\VerificationException;
+use JR\Tracker\Mail\SignUpEmail;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
 use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
@@ -17,17 +18,18 @@ class VerifyEmailService implements VerifyEmailServiceInterface
     public function __construct(
         private readonly Config $config,
         private readonly UserRepositoryInterface $userRepository,
-        private readonly VerifyEmailRepositoryInterface $verifyEmailRepository
+        private readonly VerifyEmailRepositoryInterface $verifyEmailRepository,
+        private readonly SignUpEmail $signUpEmail,
     ) {
     }
 
-    public function attemptVerifyEmail(string $token): void
+    public function attemptVerify(string $token): void
     {
         $verificationToken = $this->verifyVerificationToken($token);
         $this->verifyEmail($verificationToken);
     }
 
-    public function createEmailVerificationLink(string $email, int $expiresHours): ?string
+    public function createVerificationLink(string $email, int $expiresHours): ?string
     {
         $user = $this->userRepository->getByEmail($email);
 
@@ -38,7 +40,10 @@ class VerifyEmailService implements VerifyEmailServiceInterface
         $verificationToken = $this->verifyEmailRepository->getActiveTokenByEmail($email);
 
         if (isset($verificationToken)) {
-            $verificationToken->setExpiresAt(-24);
+            $verificationToken
+                ->setToken()
+                ->setExpiresAt($expiresHours)
+                ->setCreatedAt();
             $this->verifyEmailRepository->updateVerifyEmail($verificationToken);
         } else {
             $verificationToken = new UserVerifyEmail();
@@ -54,6 +59,17 @@ class VerifyEmailService implements VerifyEmailServiceInterface
         $baseUrl = preg_replace('/\/$/', '', $this->config->get('client_app_url'));
 
         return (string) $baseUrl . '/overeni-emailu/' . $verificationToken->getToken();
+    }
+
+    public function attemptResend(string $email): void
+    {
+        $user = $this->userRepository->getByEmail($email);
+
+        if (!isset($user)) {
+            return;
+        }
+
+        $this->signUpEmail->send($user, $this->createVerificationLink(...));
     }
 
     #REGION Private methods

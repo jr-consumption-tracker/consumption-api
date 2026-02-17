@@ -21,6 +21,7 @@ use JR\Tracker\Service\Contract\TokenServiceInterface;
 use JR\Tracker\Service\Contract\CookieServiceInterface;
 use JR\Tracker\Service\Contract\SessionServiceInterface;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 
 class AuthService implements AuthServiceInterface
@@ -33,6 +34,7 @@ class AuthService implements AuthServiceInterface
         private readonly AuthStrategyFactoryInterface $authStrategyFactory,
         private readonly SessionServiceInterface $sessionService,
         private readonly SignUpEmail $signUpEmail,
+        private readonly VerifyEmailServiceInterface $verifyEmailService,
     ) {
     }
 
@@ -53,7 +55,7 @@ class AuthService implements AuthServiceInterface
 
         $user = $this->userRepository->create($data);
 
-        $this->signUpEmail->send($user);
+        $this->signUpEmail->send($user, $this->verifyEmailService->createVerificationLink(...));
 
         return $user;
     }
@@ -163,7 +165,8 @@ class AuthService implements AuthServiceInterface
         $this->userRepository->createRefreshToken(
             $user,
             $refreshToken,
-            $domain
+            $domain,
+            (new \DateTime())->setTimestamp($tokenConfig->expRefresh)
         );
 
         if (!$this->sessionService->isActive()) {
@@ -244,7 +247,11 @@ class AuthService implements AuthServiceInterface
         $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
         $newRefreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig);
 
-        $this->userRepository->updateRefreshToken($refreshToken, $newRefreshToken);
+        $this->userRepository->updateRefreshToken(
+            $refreshToken,
+            $newRefreshToken,
+            (new \DateTime())->setTimestamp($tokenConfig->expRefresh)
+        );
 
         $this->cookieService->set(
             $authCookieConfig->name,

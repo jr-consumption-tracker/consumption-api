@@ -10,27 +10,22 @@ use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
 use JR\Tracker\Entity\User\Contract\UserInterface;
-use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 
 class SignUpEmail
 {
     public function __construct(
         private readonly Config $config,
         private readonly MailerInterface $mailer,
-        private readonly BodyRendererInterface $renderer,
-        private readonly VerifyEmailServiceInterface $verifyEmailService,
+        private readonly BodyRendererInterface $renderer
     ) {
     }
 
-    public function send(UserInterface $user): void
+    public function send(UserInterface $user, callable $linkGenerator): void
     {
         $expiresHours = 24;
         $email = $user->getEmail();
         $expirationDate = new DateTime(sprintf('+%d hours', $expiresHours));
-        $activationLink = $this->verifyEmailService->createEmailVerificationLink(
-            $email,
-            $expiresHours
-        );
+        $activationLink = $linkGenerator($email, $expiresHours);
 
         if (!isset($activationLink)) {
             return;

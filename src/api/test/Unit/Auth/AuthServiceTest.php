@@ -13,29 +13,49 @@ use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Service\Implementation\AuthService;
 use JR\Tracker\Service\Contract\HashServiceInterface;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Service\Contract\TokenServiceInterface;
+use JR\Tracker\Service\Contract\CookieServiceInterface;
+use JR\Tracker\Service\Contract\SessionServiceInterface;
+use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
+use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 
 class AuthServiceTest extends TestCase
 {
     private UserRepositoryInterface|MockObject $userRepository;
     private HashServiceInterface|MockObject $hashService;
+    private TokenServiceInterface|MockObject $tokenService;
+    private CookieServiceInterface|MockObject $cookieService;
+    private AuthStrategyFactoryInterface|MockObject $authStrategyFactory;
+    private SessionServiceInterface|MockObject $sessionService;
     private SignUpEmail|MockObject $signUpEmail;
+    private VerifyEmailServiceInterface|MockObject $verifyEmailService;
     private AuthService $authService;
 
     protected function setUp(): void
     {
         $this->userRepository = $this->createMock(UserRepositoryInterface::class);
         $this->hashService = $this->createMock(HashServiceInterface::class);
+        $this->tokenService = $this->createMock(TokenServiceInterface::class);
+        $this->cookieService = $this->createMock(CookieServiceInterface::class);
+        $this->authStrategyFactory = $this->createMock(AuthStrategyFactoryInterface::class);
+        $this->sessionService = $this->createMock(SessionServiceInterface::class);
         $this->signUpEmail = $this->createMock(SignUpEmail::class);
+        $this->verifyEmailService = $this->createMock(VerifyEmailServiceInterface::class);
 
         $this->authService = new AuthService(
             $this->userRepository,
             $this->hashService,
-            $this->signUpEmail
+            $this->tokenService,
+            $this->cookieService,
+            $this->authStrategyFactory,
+            $this->sessionService,
+            $this->signUpEmail,
+            $this->verifyEmailService
         );
     }
 
-    #[TestDox('AuthService: registerUser hashes password, creates user and sends email')]
-    public function testRegisterUserSuccess(): void
+    #[TestDox('AuthService: register hashes password, creates user and sends email')]
+    public function testRegisterSuccess(): void
     {
         $data = new RegisterUserData('test@example.com', 'plain-password');
         $hashedPassword = 'hashed-password';
@@ -50,18 +70,18 @@ class AuthServiceTest extends TestCase
 
         // 2. Expect user creation with hashed password
         $this->userRepository->expects($this->once())
-            ->method('createUser')
+            ->method('create')
             ->with($this->callback(function (RegisterUserData $passedData) use ($hashedPassword) {
                 return $passedData->password === $hashedPassword;
             }))
             ->willReturn($user);
 
-        // 3. Expect email to be sent
+        // 3. Expect email to be sent with callable
         $this->signUpEmail->expects($this->once())
             ->method('send')
-            ->with($user);
+            ->with($user, $this->isInstanceOf(\Closure::class));
 
-        $result = $this->authService->registerUser($data);
+        $result = $this->authService->register($data);
 
         $this->assertSame($user, $result);
     }
