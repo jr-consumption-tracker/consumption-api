@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\Service\Implementation;
 
 use JR\Tracker\Config;
+use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Entity\User\Implementation\UserPasswordReset;
 use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Enum\HttpStatusCode;
@@ -32,18 +33,28 @@ class PasswordResetService implements PasswordResetServiceInterface
         if (isset($user)) {
             $this->passwordResetEmail->send($user, $this->createPasswordResetLink(...));
         } else {
-            time_nanosleep(1, 0);
+            // Dummy call
+            password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
         }
     }
 
-    public function createPasswordResetLink(string $email, int $expiresHours): ?string
+
+
+    public function attemptResend(string $email): void
     {
         $user = $this->userRepository->getByEmail($email);
 
         if (!isset($user)) {
-            return null;
+            return;
         }
 
+        $this->passwordResetEmail->send($user, $this->createPasswordResetLink(...));
+    }
+
+    #REGION Private methods
+    private function createPasswordResetLink(UserInterface $user, int $expiresHours): ?string
+    {
+        $email = $user->getEmail();
         $token = $this->passwordResetRepository->getActiveToken($email);
 
         if (isset($token)) {
@@ -69,18 +80,6 @@ class PasswordResetService implements PasswordResetServiceInterface
         return (string) $baseUrl . $passwordResetCallbackUrl . $token->getToken();
     }
 
-    public function attemptResend(string $email): void
-    {
-        $user = $this->userRepository->getByEmail($email);
-
-        if (!isset($user)) {
-            return;
-        }
-
-        $this->passwordResetEmail->send($user, $this->createPasswordResetLink(...));
-    }
-
-    #REGION Private methods
     private function verifyVerificationToken(string $token): UserVerifyEmail
     {
         $verificationToken = $this->userRepository->getVerificationToken($token);

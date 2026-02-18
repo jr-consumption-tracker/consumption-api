@@ -29,14 +29,9 @@ class VerifyEmailService implements VerifyEmailServiceInterface
         $this->verifyEmail($verificationToken);
     }
 
-    public function createVerificationLink(string $email, int $expiresHours): ?string
+    private function createVerificationLink(\JR\Tracker\Entity\User\Contract\UserInterface $user, int $expiresHours): ?string
     {
-        $user = $this->userRepository->getByEmail($email);
-
-        if (!isset($user)) {
-            return null;
-        }
-
+        $email = $user->getEmail();
         $verificationToken = $this->verifyEmailRepository->getActiveTokenByEmail($email);
 
         if (isset($verificationToken)) {
@@ -67,6 +62,8 @@ class VerifyEmailService implements VerifyEmailServiceInterface
         $user = $this->userRepository->getByEmail($email);
 
         if (!isset($user)) {
+            // Dummy call
+            password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
             return;
         }
 

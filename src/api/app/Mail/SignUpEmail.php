@@ -27,7 +27,7 @@ class SignUpEmail
         $expiresHours = 24;
         $email = $user->getEmail();
         $expirationDate = new DateTime(sprintf('+%d hours', $expiresHours), new \DateTimeZone('Europe/Prague'));
-        $activationLink = $linkGenerator($email, $expiresHours);
+        $activationLink = $linkGenerator($user, $expiresHours);
 
         if (!isset($activationLink)) {
             return;

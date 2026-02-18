@@ -6,5 +6,5 @@ namespace JR\Tracker\Service\Contract;
 
 interface PasswordResetServiceInterface
 {
-  public function attemptResetPassword(string $token): void;
+  public function attemptResetPassword(string $email): void;
 }
