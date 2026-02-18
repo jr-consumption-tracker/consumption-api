@@ -45,6 +45,8 @@ class PasswordResetService implements PasswordResetServiceInterface
         $user = $this->userRepository->getByEmail($email);
 
         if (!isset($user)) {
+            // Dummy call
+            password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
             return;
         }
 
@@ -78,29 +80,6 @@ class PasswordResetService implements PasswordResetServiceInterface
         $passwordResetCallbackUrl = $this->config->get('password_reset_callback_url');
 
         return (string) $baseUrl . $passwordResetCallbackUrl . $token->getToken();
-    }
-
-    private function verifyVerificationToken(string $token): UserVerifyEmail
-    {
-        $verificationToken = $this->userRepository->getVerificationToken($token);
-
-        if (!isset($verificationToken)) {
-            throw new VerificationException(['notFound' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
-        } else if ($verificationToken->getIsExpired()) {
-            throw new VerificationException(['gone' => ['expiredToken']], HttpStatusCode::GONE->value);
-        }
-
-        return $verificationToken;
-    }
-
-    private function verifyEmail(UserVerifyEmail $verifyEmail): void
-    {
-        $this->userRepository->deleteVerificationToken($verifyEmail->getToken());
-
-        $user = $this->userRepository->getByEmail($verifyEmail->getEmail());
-        $user->setEmailVerifiedAt();
-
-        $this->userRepository->update($user);
     }
     #ENDREGION
 }

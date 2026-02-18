@@ -72,4 +72,38 @@ class PasswordResetServiceTest extends TestCase
     // but here we just verify it doesn't crash and calls the mock correctly.
     $this->passwordResetService->attemptResetPassword($email);
   }
+
+  #[TestDox('PasswordResetService: attemptResend sends email if user exists')]
+  public function testAttemptResendSuccess(): void
+  {
+    $email = 'test@example.com';
+    $user = $this->createMock(UserInterface::class);
+
+    $this->userRepository->expects($this->once())
+      ->method('getByEmail')
+      ->with($email)
+      ->willReturn($user);
+
+    $this->passwordResetEmail->expects($this->once())
+      ->method('send')
+      ->with($user, $this->anything());
+
+    $this->passwordResetService->attemptResend($email);
+  }
+
+  #[TestDox('PasswordResetService: attemptResend executes dummy logic if user does not exist')]
+  public function testAttemptResendUserNotFound(): void
+  {
+    $email = 'nonexistent@example.com';
+
+    $this->userRepository->expects($this->once())
+      ->method('getByEmail')
+      ->with($email)
+      ->willReturn(null);
+
+    $this->passwordResetEmail->expects($this->never())
+      ->method('send');
+
+    $this->passwordResetService->attemptResend($email);
+  }
 }

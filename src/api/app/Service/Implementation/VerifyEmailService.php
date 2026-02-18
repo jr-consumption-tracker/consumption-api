@@ -61,7 +61,7 @@ class VerifyEmailService implements VerifyEmailServiceInterface
     {
         $user = $this->userRepository->getByEmail($email);
 
-        if (!isset($user)) {
+        if (!isset($user) || $user->getEmailVerifiedAt() !== null) {
             // Dummy call
             password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
             return;

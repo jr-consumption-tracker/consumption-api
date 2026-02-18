@@ -70,4 +70,22 @@ class VerifyEmailServiceTest extends TestCase
 
     $this->verifyEmailService->attemptResend($email);
   }
+
+  #[TestDox('VerifyEmailService: attemptResend executes dummy logic if user is already verified')]
+  public function testAttemptResendUserAlreadyVerified(): void
+  {
+    $email = 'verified@example.com';
+    $user = $this->createMock(UserInterface::class);
+    $user->method('getEmailVerifiedAt')->willReturn(new \DateTimeImmutable());
+
+    $this->userRepository->expects($this->once())
+      ->method('getByEmail')
+      ->with($email)
+      ->willReturn($user);
+
+    $this->signUpEmail->expects($this->never())
+      ->method('send');
+
+    $this->verifyEmailService->attemptResend($email);
+  }
 }
