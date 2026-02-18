@@ -7,7 +7,7 @@ namespace JR\Tracker\Entity\User\Contract;
 interface UserVerifyEmailInterface
 {
     // Getters    
-    public function getIdVerifyEmail(): int;
+    public function getId(): int;
     public function getToken(): string;
 
     // Setters       

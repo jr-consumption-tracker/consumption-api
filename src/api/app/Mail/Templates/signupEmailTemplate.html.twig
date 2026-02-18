@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ověření e-mailu – Consumption Tracker</title>
+    <title>Ověření e-mailu – {{ appName }}</title>
     <!--[if mso]>
     <style>
         table {border-collapse: collapse;}
@@ -22,7 +22,7 @@
                     <!-- Header -->
                     <tr>
                         <td align="center" style="background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%); padding: 40px;">
-                            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; font-family: 'Inter', Arial, sans-serif;">Spotřeba energií</h1>
+                            <h1 style="margin: 0; font-size: 28px; font-weight: 700; color: #ffffff; font-family: 'Inter', Arial, sans-serif;">{{ appName }}</h1>
                         </td>
                     </tr>
 
@@ -57,7 +57,7 @@
                                     <td style="padding: 18px; font-size: 14px; color: #92400e; line-height: 1.5; font-family: 'Inter', Arial, sans-serif;">
                                         <strong>Upozornění:</strong>
                                         Tento ověřovací odkaz je platný do 
-                                        {{ expirationDate|date("d. m. Y H:i") }}. Pokud jste si účet nezakládal(a), můžete tento e-mail bez obav ignorovat.
+                                        {{ expirationDate }}. Pokud jste si účet nezakládal(a), můžete tento e-mail bez obav ignorovat.
                                     </td>
                                 </tr>
                             </table>

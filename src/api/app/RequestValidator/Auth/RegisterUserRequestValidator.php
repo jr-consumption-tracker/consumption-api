@@ -31,12 +31,11 @@ class RegisterUserRequestValidator implements RequestValidatorInterface
         if (!empty($data['email'])) {
             $v->rule('email', 'email')->message('emailInvalid');
             $v->rule('regex', 'email', '/' . EMAIL_END_REGEX . '/')->message('emailInvalid');
-            $v->rule(
-                fn($field, $value, $params, $fields) => !$this->entityManagerService->getRepository(User::class)->count(
-                    ['email' => $value]
-                ),
-                'email'
-            )->message('emailExists');
+
+            $exists = $this->entityManagerService->getRepository(User::class)->count(['email' => $data['email']]);
+            if ($exists) {
+                throw new ValidationException(['general' => ['registrationFailed']], HttpStatusCode::BAD_REQUEST->value);
+            }
         }
         // Validate password
         if (!empty($data['password'])) {

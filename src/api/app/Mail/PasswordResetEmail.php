@@ -11,7 +11,7 @@ use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
 use JR\Tracker\Entity\User\Contract\UserInterface;
 
-class SignUpEmail
+class PasswordResetEmail
 {
     public function __construct(
         private readonly Config $config,
@@ -24,7 +24,7 @@ class SignUpEmail
     {
         $appName = $this->config->get('app_name');
 
-        $expiresHours = 24;
+        $expiresHours = 1;
         $email = $user->getEmail();
         $expirationDate = new DateTime(sprintf('+%d hours', $expiresHours), new \DateTimeZone('Europe/Prague'));
         $activationLink = $linkGenerator($email, $expiresHours);
@@ -36,12 +36,12 @@ class SignUpEmail
         $message = (new TemplatedEmail())
             ->from($this->config->get('mailer.from'))
             ->to($email)
-            ->subject("[$appName] Potvrďte prosím svou e-mailovou adresu")
-            ->htmlTemplate('signupEmailTemplate.html.twig')
+            ->subject("[$appName] Odkaz pro obnovení hesla")
+            ->htmlTemplate('passwordResetEmailTemplate.html.twig')
             ->context(
                 [
                     'appName' => $appName,
-                    'activationLink' => $activationLink,
+                    'resetLink' => $activationLink,
                     'expirationDate' => $expirationDate->format('d. m. Y H:i'),
                 ]
             );

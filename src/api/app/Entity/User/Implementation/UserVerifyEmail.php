@@ -35,15 +35,12 @@ class UserVerifyEmail implements UserVerifyEmailInterface
     #[Column]
     private \DateTime $expiresAt;
 
-    #[Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $usedAt;
-
     #[Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
 
     // Getters
-    public function getIdVerifyEmail(): int
+    public function getId(): int
     {
         return $this->idUserVerifyEmail;
     }
@@ -58,10 +55,6 @@ class UserVerifyEmail implements UserVerifyEmailInterface
     public function getExpiresAt(): \DateTime
     {
         return $this->expiresAt;
-    }
-    public function getUsedAt(): ?\DateTimeImmutable
-    {
-        return $this->usedAt;
     }
     public function getCreatedAt(): \DateTimeImmutable
     {
@@ -92,11 +85,6 @@ class UserVerifyEmail implements UserVerifyEmailInterface
     public function setExpiresAt(int $hours): self
     {
         $this->expiresAt = new \DateTime(sprintf('+%d hours', $hours));
-        return $this;
-    }
-    public function setUsedAt(?\DateTimeImmutable $usedAt): self
-    {
-        $this->usedAt = $usedAt;
         return $this;
     }
     public function setCreatedAt(): self

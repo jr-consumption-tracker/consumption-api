@@ -10,6 +10,7 @@ use Doctrine\ORM\Mapping\Table;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
+use Symfony\Component\Uid\Ulid;
 use JR\Tracker\Entity\User\Contract\UserPasswordResetInterface;
 
 #[Entity]
@@ -31,18 +32,15 @@ class UserPasswordReset implements UserPasswordResetInterface
     #[Column(length: 36, unique: true)]
     private string $token;
 
-    #[Column(type: 'datetime_immutable')]
-    private \DateTimeImmutable $expiresAt;
-
-    #[Column(type: 'datetime_immutable', nullable: true)]
-    private ?\DateTimeImmutable $usedAt;
+    #[Column(type: 'datetime')]
+    private \DateTime $expiresAt;
 
     #[Column(type: 'datetime_immutable')]
     private \DateTimeImmutable $createdAt;
 
 
     // Getters
-    public function getIdPasswordReset(): int
+    public function getId(): int
     {
         return $this->idUserPasswordReset;
     }
@@ -54,17 +52,18 @@ class UserPasswordReset implements UserPasswordResetInterface
     {
         return $this->token;
     }
-    public function getExpiresAt(): \DateTimeImmutable
+    public function getExpiresAt(): \DateTime
     {
         return $this->expiresAt;
-    }
-    public function getUsedAt(): ?\DateTimeImmutable
-    {
-        return $this->usedAt;
     }
     public function getCreatedAt(): \DateTimeImmutable
     {
         return $this->createdAt;
+    }
+    public function getIsExpired(): bool
+    {
+        $now = new \DateTime();
+        return $this->expiresAt < $now;
     }
 
     // Setters
@@ -73,24 +72,23 @@ class UserPasswordReset implements UserPasswordResetInterface
         $this->email = $email;
         return $this;
     }
-    public function setToken(string $token): self
+    public function setToken(): self
     {
-        $this->token = $token;
+        $ulidString = Ulid::generate();
+        $ulidObject = Ulid::fromString($ulidString);
+        $uuidString = (string) $ulidObject->toRfc4122();
+
+        $this->token = $uuidString;
         return $this;
     }
-    public function setExpiresAt(\DateTimeImmutable $expiresAt): self
+    public function setExpiresAt(int $hours): self
     {
-        $this->expiresAt = $expiresAt;
+        $this->expiresAt = new \DateTime(sprintf('+%d hours', $hours));
         return $this;
     }
-    public function setUsedAt(?\DateTimeImmutable $usedAt): self
+    public function setCreatedAt(): self
     {
-        $this->usedAt = $usedAt;
-        return $this;
-    }
-    public function setCreatedAt(\DateTimeImmutable $createdAt): self
-    {
-        $this->createdAt = $createdAt;
+        $this->createdAt = new \DateTimeImmutable();
         return $this;
     }
 }

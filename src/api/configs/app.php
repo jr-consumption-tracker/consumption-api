@@ -27,6 +27,8 @@ return [
     'log_error_details' => true,
     'client_app_url' => $_ENV['CLIENT_APP_URL'] ?? 'http://localhost:3005',
     'csrf_enabled' => $boolean($_ENV['CSRF_ENABLED'] ?? true),
+    'verify_email_callback_url' => $_ENV['VERIFY_EMAIL_CALLBACK_URL'] ?? '',
+    'password_reset_callback_url' => $_ENV['PASSWORD_RESET_CALLBACK_URL'] ?? '',
     'doctrine' => [
         'dev_mode' => AppEnvironmentEnum::isDevelopment($appEnv),
         'cache_dir' => STORAGE_PATH . '/cache/doctrine',

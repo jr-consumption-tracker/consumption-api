@@ -53,6 +53,7 @@ use JR\Tracker\Service\Implementation\SessionService;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use JR\Tracker\Service\Contract\TokenServiceInterface;
 use JR\Tracker\DataObject\Config\AdminAuthCookieConfig;
+use JR\Tracker\Repository\Contract\PasswordResetRepositoryInterface;
 use JR\Tracker\Service\Contract\CookieServiceInterface;
 use Symfony\Component\RateLimiter\Storage\CacheStorage;
 use JR\Tracker\Repository\Implementation\UserRepository;
@@ -68,10 +69,13 @@ use JR\Tracker\Service\Contract\LoggerServiceInterface;
 use JR\Tracker\Repository\Implementation\VerifyEmailRepository;
 use JR\Tracker\Strategy\Implementation\AuthStrategyFactory;
 use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
+use JR\Tracker\Repository\Implementation\PasswordResetRepository;
 use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
 use JR\Tracker\RequestValidator\Request\Implementation\RequestValidatorFactory;
 use JR\Tracker\RequestValidator\Request\Contract\RequestValidatorFactoryInterface;
+use JR\Tracker\Service\Contract\PasswordResetServiceInterface;
 use JR\Tracker\Service\Implementation\CsrfService;
+use JR\Tracker\Service\Implementation\PasswordResetService;
 use Slim\Csrf\Guard;
 
 // TODO: Pokud budu chtít filtrovat data podle uživatele, tak to musím udělat pomocí filtrů. Video 129
@@ -215,6 +219,9 @@ return [
     LoggerServiceInterface::class => fn(ContainerInterface $container) => $container->get(
         LoggerService::class
     ),
+    PasswordResetServiceInterface::class => fn(ContainerInterface $container) => $container->get(
+        PasswordResetService::class
+    ),
         #endregion
 
         #region Repositories
@@ -223,6 +230,9 @@ return [
     ),
     VerifyEmailRepositoryInterface::class => fn(ContainerInterface $container) => $container->get(
         VerifyEmailRepository::class
+    ),
+    PasswordResetRepositoryInterface::class => fn(ContainerInterface $container) => $container->get(
+        PasswordResetRepository::class
     ),
         #endregion
 

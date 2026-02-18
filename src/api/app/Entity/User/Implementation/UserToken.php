@@ -32,13 +32,12 @@ class UserToken implements UserTokenInterface
     #[Column(length: 255, nullable: true)]
     private string|null $refreshToken;
 
+    #[Column(type: 'datetime')]
+    private \DateTime $expiresAt;
+
     #[ManyToOne(inversedBy: 'idUser', targetEntity: User::class)]
     #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
     private User $user;
-
-    #[Column]
-    private \DateTime $expiresAt;
-
 
 
     // Getters

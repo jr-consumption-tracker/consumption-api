@@ -10,6 +10,7 @@ function getWebRoutes(RouteCollectorProxy $api)
         getWebAuthRoutes($web);
         getWebVerifyEmailRoutes($web);
         getWebUserRoutes($web);
+        getWebPasswordResetRoutes($web);
     });
 
     return $api;
