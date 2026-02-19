@@ -5,14 +5,16 @@ declare(strict_types=1);
 namespace JR\Tracker\Service\Implementation;
 
 use JR\Tracker\Config;
+use JR\Tracker\DataObject\Data\PasswordResetData;
 use JR\Tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\Entity\User\Contract\UserPasswordResetInterface;
 use JR\Tracker\Entity\User\Implementation\UserPasswordReset;
-use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\Exception\VerificationException;
 use JR\Tracker\Mail\PasswordResetEmail;
 use JR\Tracker\Repository\Contract\PasswordResetRepositoryInterface;
 use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Service\Contract\HashServiceInterface;
 use JR\Tracker\Service\Contract\PasswordResetServiceInterface;
 
 class PasswordResetService implements PasswordResetServiceInterface
@@ -22,11 +24,12 @@ class PasswordResetService implements PasswordResetServiceInterface
         private readonly PasswordResetEmail $passwordResetEmail,
         private readonly UserRepositoryInterface $userRepository,
         private readonly PasswordResetRepositoryInterface $passwordResetRepository,
+        private readonly HashServiceInterface $hashService
 
     ) {
     }
 
-    public function attemptResetPassword(string $email): void
+    public function attemptRequest(string $email): void
     {
         $user = $this->userRepository->getByEmail($email);
 
@@ -40,24 +43,20 @@ class PasswordResetService implements PasswordResetServiceInterface
 
 
 
-    public function attemptResend(string $email): void
+    public function attemptReset(PasswordResetData $data): void
     {
-        $user = $this->userRepository->getByEmail($email);
+        $passwordResetToken = $this->verifyToken($data->token);
 
-        if (!isset($user)) {
-            // Dummy call
-            password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
-            return;
-        }
+        $user = $this->userRepository->getByEmail($passwordResetToken->getEmail());
 
-        $this->passwordResetEmail->send($user, $this->createPasswordResetLink(...));
+        $this->resetPassword($user, $data->password, $data->token);
     }
 
     #REGION Private methods
     private function createPasswordResetLink(UserInterface $user, int $expiresHours): ?string
     {
         $email = $user->getEmail();
-        $token = $this->passwordResetRepository->getActiveToken($email);
+        $token = $this->passwordResetRepository->getByEmail($email);
 
         if (isset($token)) {
             $token
@@ -80,6 +79,27 @@ class PasswordResetService implements PasswordResetServiceInterface
         $passwordResetCallbackUrl = $this->config->get('password_reset_callback_url');
 
         return (string) $baseUrl . $passwordResetCallbackUrl . $token->getToken();
+    }
+
+    private function verifyToken(string $token): UserPasswordResetInterface
+    {
+        $passwordResetToken = $this->passwordResetRepository->getByToken($token);
+
+        if (!isset($passwordResetToken)) {
+            throw new VerificationException(['token' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
+        } else if ($passwordResetToken->getIsExpired()) {
+            throw new VerificationException(['token' => ['expiredToken']], HttpStatusCode::GONE->value);
+        }
+
+        return $passwordResetToken;
+    }
+
+    private function resetPassword(UserInterface $user, string $password, string $token): void
+    {
+        $hashedPassword = $this->hashService->hash($password);
+        $user->setPassword($hashedPassword);
+        $this->userRepository->update($user);
+        $this->passwordResetRepository->delete($token);
     }
     #ENDREGION
 }

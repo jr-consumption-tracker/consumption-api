@@ -9,7 +9,7 @@ use JR\Tracker\Exception\ValidationException;
 use JR\Tracker\RequestValidator\Request\Contract\RequestValidatorInterface;
 use Valitron\Validator;
 
-class PasswordResetRequestValidator implements RequestValidatorInterface
+class RequestPasswordResetRequestValidator implements RequestValidatorInterface
 {
     public function __construct(
     ) {

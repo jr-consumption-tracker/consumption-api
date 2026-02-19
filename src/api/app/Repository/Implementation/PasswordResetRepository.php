@@ -12,27 +12,43 @@ use JR\Tracker\Repository\Contract\PasswordResetRepositoryInterface;
 class PasswordResetRepository implements PasswordResetRepositoryInterface
 {
     public function __construct(
-        private readonly EntityManagerServiceInterface $entityManager,
+        private readonly EntityManagerServiceInterface $entityManagerService,
     ) {
     }
 
     public function create(UserPasswordResetInterface $passwordReset): void
     {
-        $this->entityManager->sync($passwordReset);
+        $this->entityManagerService->sync($passwordReset);
     }
 
     public function update(UserPasswordResetInterface $passwordReset): void
     {
-        $this->entityManager->sync($passwordReset);
+        $this->entityManagerService->sync($passwordReset);
     }
 
-    public function getActiveToken(string $email): ?UserPasswordResetInterface
+    public function getByEmail(string $email): ?UserPasswordResetInterface
     {
-        return $this->entityManager->getRepository(UserPasswordReset::class)
+        return $this->entityManagerService->getRepository(UserPasswordReset::class)
             ->findOneBy(
                 [
                     'email' => $email,
                 ]
             );
+    }
+
+    public function getByToken(string $token): ?UserPasswordResetInterface
+    {
+        return $this->entityManagerService->getRepository(UserPasswordReset::class)
+            ->findOneBy(['token' => $token]);
+    }
+
+    public function delete(string $token): void
+    {
+        $tokenEntity = $this->getByToken($token);
+
+        if (isset($tokenEntity)) {
+            $this->entityManagerService->remove($tokenEntity);
+            $this->entityManagerService->flush();
+        }
     }
 }

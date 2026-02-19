@@ -8,7 +8,9 @@ interface UserPasswordResetInterface
 {
   // Getters    
   public function getId(): int;
+  public function getEmail(): string;
   public function getToken(): string;
+  public function getIsExpired(): bool;
 
   // Setters       
   public function setToken(): self;

@@ -9,8 +9,11 @@ use JR\Tracker\Middleware\RateLimitMiddleware;
 function getWebPasswordResetRoutes(RouteCollectorProxy $api): RouteCollectorProxy
 {
     $api->group('/passwordReset', function (RouteCollectorProxy $passwordReset) {
-        $passwordReset->post('/requestReset', [PasswordResetController::class, "requestReset"])
-            ->setName('web_requestReset')
+        $passwordReset->post('/request', [PasswordResetController::class, "request"])
+            ->setName('web_requestPasswordReset')
+            ->add(RateLimitMiddleware::class);
+        $passwordReset->post('/reset', [PasswordResetController::class, "reset"])
+            ->setName('web_resetPassword')
             ->add(RateLimitMiddleware::class);
     });
 

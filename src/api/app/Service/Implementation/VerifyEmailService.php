@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace JR\Tracker\Service\Implementation;
 
 use JR\Tracker\Config;
+use JR\Tracker\Entity\User\Contract\UserInterface;
 use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\Exception\VerificationException;
@@ -25,11 +26,11 @@ class VerifyEmailService implements VerifyEmailServiceInterface
 
     public function attemptVerify(string $token): void
     {
-        $verificationToken = $this->verifyVerificationToken($token);
+        $verificationToken = $this->verifyToken($token);
         $this->verifyEmail($verificationToken);
     }
 
-    private function createVerificationLink(\JR\Tracker\Entity\User\Contract\UserInterface $user, int $expiresHours): ?string
+    private function createVerificationLink(UserInterface $user, int $expiresHours): ?string
     {
         $email = $user->getEmail();
         $verificationToken = $this->verifyEmailRepository->getActiveTokenByEmail($email);
@@ -71,7 +72,7 @@ class VerifyEmailService implements VerifyEmailServiceInterface
     }
 
     #REGION Private methods
-    private function verifyVerificationToken(string $token): UserVerifyEmail
+    private function verifyToken(string $token): UserVerifyEmail
     {
         $verificationToken = $this->userRepository->getVerificationToken($token);
 
