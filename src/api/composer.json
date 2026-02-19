@@ -1,7 +1,7 @@
 {
   "name": "consumption-tracker/api",
   "description": "API for Consumption Tracker application",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "authors": [
     {
       "name": "Jan Ribka",
