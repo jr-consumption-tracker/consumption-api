@@ -6,6 +6,6 @@ namespace JR\Tracker\Enum;
 
 enum StorageDriverEnum
 {
-    case Local;
-    case Remote_DO;
+  case Local;
+  case Remote_DO;
 }

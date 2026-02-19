@@ -12,69 +12,69 @@ use JR\Tracker\Service\Contract\EntityManagerServiceInterface;
  */
 class EntityManagerService implements EntityManagerServiceInterface
 {
-    public function __construct(
-        protected readonly EntityManagerInterface $entityManagerService
-    ) {
+  public function __construct(
+    protected readonly EntityManagerInterface $entityManagerService
+  ) {
+  }
+
+  public function __call(string $name, array $arguments)
+  {
+    if (method_exists($this->entityManagerService, $name)) {
+      return call_user_func_array([$this->entityManagerService, $name], $arguments);
     }
 
-    public function __call(string $name, array $arguments)
-    {
-        if (method_exists($this->entityManagerService, $name)) {
-            return call_user_func_array([$this->entityManagerService, $name], $arguments);
-        }
+    throw new \BadMethodCallException('Call to undefined method "' . $name . '"');
+  }
 
-        throw new \BadMethodCallException('Call to undefined method "' . $name . '"');
+  public function sync($entity = null): int|string|null
+  {
+    if ($entity) {
+      $this->entityManagerService->persist($entity);
     }
 
-    public function sync($entity = null): int|string|null
-    {
-        if ($entity) {
-            $this->entityManagerService->persist($entity);
-        }
+    $this->entityManagerService->flush();
 
-        $this->entityManagerService->flush();
-
-        if ($entity === null) {
-            return null;
-        }
-
-        $classMetadata = $this->entityManagerService->getClassMetadata(get_class($entity));
-        $identifier = $classMetadata->getIdentifierValues($entity);
-
-        if (count($identifier) === 1) {
-            return reset($identifier);
-        }
-
-        return null;
+    if ($entity === null) {
+      return null;
     }
 
-    public function delete($entity, bool $sync = false): void
-    {
-        $this->entityManagerService->remove($entity);
+    $classMetadata = $this->entityManagerService->getClassMetadata(get_class($entity));
+    $identifier = $classMetadata->getIdentifierValues($entity);
 
-        if ($sync) {
-            $this->sync();
-        }
+    if (count($identifier) === 1) {
+      return reset($identifier);
     }
 
-    public function clear(?string $entityName = null): void
-    {
-        if ($entityName === null) {
-            $this->entityManagerService->clear();
+    return null;
+  }
 
-            return;
-        }
+  public function delete($entity, bool $sync = false): void
+  {
+    $this->entityManagerService->remove($entity);
 
-        $unitOfWork = $this->entityManagerService->getUnitOfWork();
-        $entities = $unitOfWork->getIdentityMap()[$entityName] ?? [];
+    if ($sync) {
+      $this->sync();
+    }
+  }
 
-        foreach ($entities as $entity) {
-            $this->entityManagerService->detach($entity);
-        }
+  public function clear(?string $entityName = null): void
+  {
+    if ($entityName === null) {
+      $this->entityManagerService->clear();
+
+      return;
     }
 
-    public function enableUserAuthFilter(int $idUser): void
-    {
-        $this->getFilters()->enable('user')->setParameter('idUser', $idUser);
+    $unitOfWork = $this->entityManagerService->getUnitOfWork();
+    $entities = $unitOfWork->getIdentityMap()[$entityName] ?? [];
+
+    foreach ($entities as $entity) {
+      $this->entityManagerService->detach($entity);
     }
+  }
+
+  public function enableUserAuthFilter(int $idUser): void
+  {
+    $this->getFilters()->enable('user')->setParameter('idUser', $idUser);
+  }
 }

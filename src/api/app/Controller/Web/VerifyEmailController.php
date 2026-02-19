@@ -13,30 +13,30 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class VerifyEmailController
 {
-    public function __construct(
-        private readonly VerifyEmailServiceInterface $verifyEmailService,
-        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
-    ) {
-    }
+  public function __construct(
+    private readonly VerifyEmailServiceInterface $verifyEmailService,
+    private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
+  ) {
+  }
 
-    public function verify(Request $request, Response $response): Response
-    {
-        $queryParams = $request->getQueryParams();
-        $token = $queryParams["token"] ?? "";
+  public function verify(Request $request, Response $response): Response
+  {
+    $queryParams = $request->getQueryParams();
+    $token = $queryParams["token"] ?? "";
 
-        $this->verifyEmailService->attemptVerify($token);
+    $this->verifyEmailService->attemptVerify($token);
 
-        return $response->withStatus(HttpStatusCode::OK->value);
-    }
+    return $response->withStatus(HttpStatusCode::OK->value);
+  }
 
-    public function resend(Request $request, Response $response): Response
-    {
-        $data = $this->requestValidatorFactory->make(ResendVerificationRequestValidator::class)->validate(
-            $request->getParsedBody() ?? []
-        );
+  public function resend(Request $request, Response $response): Response
+  {
+    $data = $this->requestValidatorFactory->make(ResendVerificationRequestValidator::class)->validate(
+      $request->getParsedBody() ?? []
+    );
 
-        $this->verifyEmailService->attemptResend($data["email"]);
+    $this->verifyEmailService->attemptResend($data["email"]);
 
-        return $response->withStatus(HttpStatusCode::OK->value);
-    }
+    return $response->withStatus(HttpStatusCode::OK->value);
+  }
 }

@@ -8,12 +8,15 @@ use Doctrine\Common\Collections\Collection;
 
 interface UserRoleTypeInterface
 {
-    // Getters
-    public function getValue(): int;
-    public function getUserRolePermission(): Collection;
+  // Getters
+  public function getValue(): int;
 
-    // Setters
-    public function setCode(string $code): self;
-    public function setValue(int $value): self;
-    public function setDescription(string $description): self;
+  public function getUserRolePermission(): Collection;
+
+  // Setters
+  public function setCode(string $code): self;
+
+  public function setValue(int $value): self;
+
+  public function setDescription(string $description): self;
 }

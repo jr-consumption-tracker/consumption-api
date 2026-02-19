@@ -15,39 +15,37 @@ use Psr\Http\Message\ServerRequestInterface as Request;
 
 class PasswordResetController
 {
-    public function __construct(
-        private readonly PasswordResetServiceInterface $passwordResetService,
-        private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
-    ) {
-    }
+  public function __construct(
+    private readonly PasswordResetServiceInterface $passwordResetService,
+    private readonly RequestValidatorFactoryInterface $requestValidatorFactory,
+  ) {
+  }
 
-    public function request(Request $request, Response $response): Response
-    {
-        $data = $this->requestValidatorFactory->make(RequestPasswordResetRequestValidator::class)->validate(
-            $request->getParsedBody() ?? []
-        );
+  public function request(Request $request, Response $response): Response
+  {
+    $data = $this->requestValidatorFactory->make(RequestPasswordResetRequestValidator::class)->validate(
+      $request->getParsedBody() ?? []
+    );
 
-        $this->passwordResetService->attemptRequest($data["email"]);
+    $this->passwordResetService->attemptRequest($data["email"]);
 
-        return $response->withStatus(HttpStatusCode::OK->value);
-    }
+    return $response->withStatus(HttpStatusCode::OK->value);
+  }
 
-    public function reset(Request $request, Response $response): Response
-    {
-        $data = $this->requestValidatorFactory->make(ResetPasswordRequestValidator::class)->validate(
-            $request->getParsedBody() ?? []
-        );
+  public function reset(Request $request, Response $response): Response
+  {
+    $data = $this->requestValidatorFactory->make(ResetPasswordRequestValidator::class)->validate(
+      $request->getParsedBody() ?? []
+    );
 
-        $this->passwordResetService->attemptReset(
-            new PasswordResetData(
-                $data["password"],
-                $data["confirmPassword"],
-                $data["token"]
-            )
-        );
+    $this->passwordResetService->attemptReset(
+      new PasswordResetData(
+        $data["password"],
+        $data["confirmPassword"],
+        $data["token"]
+      )
+    );
 
-        return $response->withStatus(HttpStatusCode::OK->value);
-    }
-
-
+    return $response->withStatus(HttpStatusCode::OK->value);
+  }
 }

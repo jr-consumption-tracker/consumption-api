@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace JR\Tracker\Middleware;
 
 use JR\Tracker\Exception\VerificationException;
-use Psr\Http\Message\ResponseInterface;
-use Psr\Http\Server\MiddlewareInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Http\Message\ResponseFactoryInterface;
 use JR\Tracker\Service\Contract\RequestServiceInterface;
 use JR\Tracker\Shared\ResponseFormatter\ResponseFormatter;
+use Psr\Http\Message\ResponseFactoryInterface;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
+use Psr\Http\Server\MiddlewareInterface;
+use Psr\Http\Server\RequestHandlerInterface;
 
 class VerificationExceptionMiddleware implements MiddlewareInterface
 {

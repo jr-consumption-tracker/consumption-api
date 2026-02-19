@@ -6,10 +6,10 @@ namespace JR\Tracker\DataObject\Data;
 
 class LoginUserData
 {
-    public function __construct(
-        public readonly string $email,
-        public readonly string $password,
-        public readonly bool $persistLogin,
-    ) {
-    }
+  public function __construct(
+    public readonly string $email,
+    public readonly string $password,
+    public readonly bool $persistLogin,
+  ) {
+  }
 }

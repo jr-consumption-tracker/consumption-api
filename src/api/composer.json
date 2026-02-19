@@ -1,7 +1,7 @@
 {
   "name": "consumption-tracker/api",
   "description": "API for Consumption Tracker application",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "authors": [
     {
       "name": "Jan Ribka",
@@ -33,7 +33,8 @@
     "lint:summary": "vendor/bin/phpcs --standard=phpcs.xml --report=summary",
     "lint:fix": "vendor/bin/php-cs-fixer fix",
     "release:version": "php scripts/releaseVersion.php",
-    "release:analyze": "vendor/bin/phpstan analyse app --ansi",
+    "release:lintSummary": "composer lint:summary",
+    "release:analyze": "vendor/bin/phpstan analyse app --ansi --memory-limit 512M",
     "release:changelog": "php scripts/releaseChangelog.php",
     "release:tag": "php scripts/releaseTag.php"
   },

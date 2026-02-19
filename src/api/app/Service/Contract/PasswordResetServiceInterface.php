@@ -9,5 +9,6 @@ use JR\Tracker\DataObject\Data\PasswordResetData;
 interface PasswordResetServiceInterface
 {
   public function attemptRequest(string $email): void;
+
   public function attemptReset(PasswordResetData $data): void;
 }

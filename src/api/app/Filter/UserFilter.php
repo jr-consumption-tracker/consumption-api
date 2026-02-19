@@ -10,12 +10,12 @@ use JR\Tracker\Shared\Interface\OwnableInterface;
 
 class UserFilter extends SQLFilter
 {
-    public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
-    {
-        if (!$targetEntity->getReflectionClass()->implementsInterface(OwnableInterface::class)) {
-            return '';
-        }
-
-        return $targetTableAlias . 'idUser = ' . $this->getParameter('idUser');
+  public function addFilterConstraint(ClassMetadata $targetEntity, $targetTableAlias): string
+  {
+    if (!$targetEntity->getReflectionClass()->implementsInterface(OwnableInterface::class)) {
+      return '';
     }
+
+    return $targetTableAlias . 'idUser = ' . $this->getParameter('idUser');
+  }
 }

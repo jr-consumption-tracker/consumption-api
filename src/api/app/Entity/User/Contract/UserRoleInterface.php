@@ -9,11 +9,11 @@ use JR\Tracker\Entity\User\Implementation\UserRoleType;
 
 interface UserRoleInterface
 {
-    // Getters
-    public function getUserRoleType(): UserRoleTypeInterface;
+  // Getters
+  public function getUserRoleType(): UserRoleTypeInterface;
 
+  // Setters
+  public function setUser(User $user): self;
 
-    // Setters
-    public function setUser(User $user): self;
-    public function setUserRoleType(UserRoleType $userRoleType): self;
+  public function setUserRoleType(UserRoleType $userRoleType): self;
 }

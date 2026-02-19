@@ -6,6 +6,6 @@ namespace JR\Tracker\Enum;
 
 enum DomainContextEnum: string
 {
-    case WEB = 'web';
-    case ADMIN = 'admin';
+  case WEB = 'web';
+  case ADMIN = 'admin';
 }

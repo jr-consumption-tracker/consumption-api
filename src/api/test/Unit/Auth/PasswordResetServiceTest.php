@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Test\Unit\Auth;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use JR\Tracker\Service\Implementation\PasswordResetService;
-use JR\Tracker\Repository\Contract\UserRepositoryInterface;
-use JR\Tracker\Repository\Contract\PasswordResetRepositoryInterface;
-use JR\Tracker\Mail\PasswordResetEmail;
 use JR\Tracker\Config;
 use JR\Tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\Mail\PasswordResetEmail;
+use JR\Tracker\Repository\Contract\PasswordResetRepositoryInterface;
+use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Service\Implementation\PasswordResetService;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class PasswordResetServiceTest extends TestCase
 {
@@ -68,7 +68,7 @@ class PasswordResetServiceTest extends TestCase
     $this->passwordResetEmail->expects($this->never())
       ->method('send');
 
-    // Capture start time to potentially verify "non-blocking" nature if we wanted, 
+    // Capture start time to potentially verify "non-blocking" nature if we wanted,
     // but here we just verify it doesn't crash and calls the mock correctly.
     $this->passwordResetService->attemptResetPassword($email);
   }

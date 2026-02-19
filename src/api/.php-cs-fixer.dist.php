@@ -18,7 +18,7 @@ return $config->setRules([
   'array_syntax' => ['syntax' => 'short'],
   'ordered_imports' => ['sort_algorithm' => 'alpha'],
   'no_unused_imports' => true,
-  'not_operator_with_successor_space' => true,
+  'not_operator_with_successor_space' => false,
   'trailing_comma_in_multiline' => ['elements' => ['arrays']],
   'phpdoc_scalar' => true,
   'unary_operator_spaces' => true,
@@ -38,5 +38,7 @@ return $config->setRules([
     'keep_multiple_spaces_after_comma' => true,
   ],
   'single_trait_insert_per_statement' => true,
+  'function_declaration' => ['closure_function_spacing' => 'one', 'closure_fn_spacing' => 'none'],
 ])
-  ->setFinder($finder);
+  ->setFinder($finder)
+  ->setIndent('  '); // 2 mezery

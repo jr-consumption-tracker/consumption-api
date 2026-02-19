@@ -8,5 +8,5 @@ use JR\Tracker\Enum\DomainContextEnum;
 
 interface AuthStrategyFactoryInterface
 {
-    public function create(DomainContextEnum $domain): AuthStrategyInterface;
+  public function create(DomainContextEnum $domain): AuthStrategyInterface;
 }

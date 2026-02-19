@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace Test\Unit\Auth;
 
-use PHPUnit\Framework\TestCase;
-use PHPUnit\Framework\MockObject\MockObject;
-use JR\Tracker\Service\Implementation\VerifyEmailService;
-use JR\Tracker\Repository\Contract\UserRepositoryInterface;
-use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
-use JR\Tracker\Mail\SignUpEmail;
 use JR\Tracker\Config;
 use JR\Tracker\Entity\User\Contract\UserInterface;
+use JR\Tracker\Mail\SignUpEmail;
+use JR\Tracker\Repository\Contract\UserRepositoryInterface;
+use JR\Tracker\Repository\Contract\VerifyEmailRepositoryInterface;
+use JR\Tracker\Service\Implementation\VerifyEmailService;
 use PHPUnit\Framework\Attributes\TestDox;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
 class VerifyEmailServiceTest extends TestCase
 {
