@@ -8,7 +8,7 @@ class PasswordResetData
 {
     public function __construct(
         public readonly string $password,
-        public readonly string $passwordReset,
+        public readonly string $confirmPassword,
         public readonly string $token,
     ) {
     }
