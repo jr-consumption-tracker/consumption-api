@@ -6,5 +6,5 @@ namespace JR\Tracker\Service\Contract;
 
 interface HashServiceInterface
 {
-    public function hash(string $input): string;
+  public function hash(string $input): string;
 }

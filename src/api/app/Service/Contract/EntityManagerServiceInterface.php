@@ -13,14 +13,13 @@ use Doctrine\ORM\EntityManagerInterface;
  */
 interface EntityManagerServiceInterface
 {
-    public function __call(string $name, array $arguments);
+  public function __call(string $name, array $arguments);
 
-    public function sync($entity = null): int|string|null;
+  public function sync($entity = null): int|string|null;
 
-    public function delete($entity, bool $sync = false): void;
+  public function delete($entity, bool $sync = false): void;
 
-    public function clear(?string $entityName = null): void;
+  public function clear(?string $entityName = null): void;
 
-    public function enableUserAuthFilter(int $userId): void;
+  public function enableUserAuthFilter(int $userId): void;
 }
-

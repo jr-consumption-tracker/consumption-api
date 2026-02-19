@@ -6,5 +6,4 @@ namespace JR\Tracker\Entity\Billing\Contract;
 
 interface SubscriptionPlanFeatureInterface
 {
-
 }

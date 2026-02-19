@@ -6,5 +6,5 @@ namespace JR\Tracker\RequestValidator\Request\Contract;
 
 interface RequestValidatorFactoryInterface
 {
-    public function make(string $class): RequestValidatorInterface;
+  public function make(string $class): RequestValidatorInterface;
 }

@@ -8,20 +8,19 @@ use JR\Tracker\Enum\UserRoleTypeEnum;
 
 class UserRoleHelper
 {
+  public static function getRoleValueArrayFromUserRoles(array $userRoles)
+  {
+    return array_map(
+      fn($role) => $role->getUserRoleType()->getValue(),
+      $userRoles
+    );
+  }
 
-    public static function getRoleValueArrayFromUserRoles(array $userRoles)
-    {
-        return array_map(
-            fn($role) => $role->getUserRoleType()->getValue(),
-            $userRoles
-        );
-    }
-
-    public static function hasRole(array $userRoles, UserRoleTypeEnum $userRole): bool
-    {
-        return !empty(array_filter(
-            $userRoles,
-            fn($role) => $role->getUserRoleType()->getValue() === $userRole->value
-        ));
-    }
+  public static function hasRole(array $userRoles, UserRoleTypeEnum $userRole): bool
+  {
+    return !empty(array_filter(
+      $userRoles,
+      fn($role) => $role->getUserRoleType()->getValue() === $userRole->value
+    ));
+  }
 }

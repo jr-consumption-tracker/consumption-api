@@ -8,8 +8,8 @@ use JR\Tracker\Service\Contract\HashServiceInterface;
 
 class HashService implements HashServiceInterface
 {
-    public function hash(string $input): string
-    {
-        return password_hash($input, PASSWORD_BCRYPT, ['cost' => 12]);
-    }
+  public function hash(string $input): string
+  {
+    return password_hash($input, PASSWORD_BCRYPT, ['cost' => 12]);
+  }
 }

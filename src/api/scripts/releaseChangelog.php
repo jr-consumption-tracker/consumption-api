@@ -3,7 +3,7 @@
 
 /**
  * Consumption Tracker Changelog Preview
- * 
+ *
  * Ported from MUI's release-changelog logic
  */
 
@@ -22,25 +22,29 @@ function colorize($text, $color)
 /**
  * Extracts and sorts [tag] prefixes
  */
-function parse_tags($commitMessage) {
+function parse_tags($commitMessage)
+{
   if (preg_match('/^(\[[\w-]+\])+/', $commitMessage, $matches)) {
     preg_match_all('/([\w-]+)/', $matches[0], $tagMatches);
     $tags = array_map('strtolower', $tagMatches[0]);
     sort($tags);
+
     return implode(',', $tags);
   }
+
   return '';
 }
 
 /**
  * Finds the latest tag matching v* from upstream remote
  */
-function get_latest_tag() {
+function get_latest_tag()
+{
   exec('git ls-remote --tags upstream 2>&1', $out, $return);
   if ($return !== 0 || empty($out)) {
     return null;
   }
-  
+
   $tags = [];
   foreach ($out as $line) {
     // Format: "hash refs/tags/v0.2.0" or "hash refs/tags/v0.2.0^{}"
@@ -48,24 +52,25 @@ function get_latest_tag() {
       $tags[] = $m[1];
     }
   }
-  
+
   if (empty($tags)) {
     return null;
   }
-  
+
   // Remove duplicates and sort by version (descending)
   $tags = array_unique($tags);
-  usort($tags, function($a, $b) {
+  usort($tags, function ($a, $b) {
     return version_compare($b, $a);
   });
-  
+
   return $tags[0];
 }
 
 /**
  * Filters out maintenance and irrelevant commits
  */
-function filter_commit($message) {
+function filter_commit($message)
+{
   return (
     !str_starts_with($message, 'Bump') &&
     !str_starts_with($message, 'Lock file maintenance') &&
@@ -102,20 +107,24 @@ $contributors = [];
 foreach ($rawCommits as $index => $line) {
   // Use a safer split to handle possible pipes in messages (rare but possible)
   $parts = explode('|', $line);
-  if (count($parts) < 3) continue;
-  
+  if (count($parts) < 3) {
+    continue;
+  }
+
   $author = array_pop($parts);
   $hash = array_pop($parts);
   $message = implode('|', $parts);
-  
-  if (!filter_commit($message)) continue;
+
+  if (!filter_commit($message)) {
+    continue;
+  }
 
   $commitsItems[] = [
     'message' => $message,
     'hash' => $hash,
     'author' => $author,
     'index' => $index, // for breaking ties (date desc)
-    'tags' => parse_tags($message)
+    'tags' => parse_tags($message),
   ];
 
   if (!in_array($author, $contributors)) {
@@ -124,10 +133,11 @@ foreach ($rawCommits as $index => $line) {
 }
 
 // 4. Sorting (Tags ASC, then Date DESC)
-usort($commitsItems, function($a, $b) {
+usort($commitsItems, function ($a, $b) {
   if ($a['tags'] === $b['tags']) {
     return $a['index'] - $b['index']; // git log provides newest first (lower index = newer)
   }
+
   return strcmp($a['tags'], $b['tags']);
 });
 

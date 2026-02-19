@@ -6,10 +6,10 @@ use Slim\Routing\RouteCollectorProxy;
 
 function getAdminRoutes(RouteCollectorProxy $api)
 {
-    $api->group('/admin', function (RouteCollectorProxy $web) {
-        getAdminAuthRoutes($web);
-        getAdminUserRoutes($web);
-    });
+  $api->group('/admin', function (RouteCollectorProxy $web) {
+    getAdminAuthRoutes($web);
+    getAdminUserRoutes($web);
+  });
 
-    return $api;
+  return $api;
 }

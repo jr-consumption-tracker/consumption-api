@@ -11,22 +11,22 @@ use Valitron\Validator;
 
 class ResendVerificationRequestValidator implements RequestValidatorInterface
 {
-    public function __construct(
-    ) {
+  public function __construct(
+  ) {
+  }
+
+  public function validate(array $data): array
+  {
+    $v = new Validator($data);
+
+    // Validate mandatory fields
+    $v->rule('required', 'email')->message('emailRequired');
+
+
+    if (!$v->validate()) {
+      throw new ValidationException($v->errors(), HttpStatusCode::BAD_REQUEST->value);
     }
 
-    public function validate(array $data): array
-    {
-        $v = new Validator($data);
-
-        // Validate mandatory fields
-        $v->rule('required', 'email')->message('emailRequired');
-
-
-        if (!$v->validate()) {
-            throw new ValidationException($v->errors(), HttpStatusCode::BAD_REQUEST->value);
-        }
-
-        return $data;
-    }
+    return $data;
+  }
 }

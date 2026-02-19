@@ -3,7 +3,7 @@
 
 /**
  * Interactive Release Script for Consumption Tracker API
- * 
+ *
  * Features:
  * - Interactive version selection (major/minor/patch)
  * - Pre-release support (alpha, beta, rc)
@@ -39,71 +39,73 @@ function get_version_options($current)
 {
   // Simple semver parse: major.minor.patch[-pre.num]
   preg_match('/^(\d+)\.(\d+)\.(\d+)(?:-([a-z]+)\.(\d+))?$/i', $current, $m);
-  if (!$m) return [];
+  if (!$m) {
+    return [];
+  }
 
-  $major = (int)$m[1];
-  $minor = (int)$m[2];
-  $patch = (int)$m[3];
+  $major = (int) $m[1];
+  $minor = (int) $m[2];
+  $patch = (int) $m[3];
   $preTag = $m[4] ?? null;
-  $preNum = isset($m[5]) ? (int)$m[5] : null;
+  $preNum = isset($m[5]) ? (int) $m[5] : null;
 
   $options = [];
 
   // 1. Regular bumps
   $options['patch'] = [
     'label' => sprintf("Patch (%d.%d.%d)", $major, $minor, $patch + 1),
-    'new' => sprintf("%d.%d.%d", $major, $minor, $patch + 1)
+    'new' => sprintf("%d.%d.%d", $major, $minor, $patch + 1),
   ];
   $options['minor'] = [
     'label' => sprintf("Minor (%d.%d.0)", $major, $minor + 1),
-    'new' => sprintf("%d.%d.0", $major, $minor + 1)
+    'new' => sprintf("%d.%d.0", $major, $minor + 1),
   ];
   $options['major'] = [
     'label' => sprintf("Major (%d.0.0)", $major + 1),
-    'new' => sprintf("%d.0.0", $major + 1)
+    'new' => sprintf("%d.0.0", $major + 1),
   ];
 
   // 2. Pre-releases
   if ($preTag !== null) {
     // Already in pre-release
     $preTagLower = strtolower($preTag);
-    
+
     // Always offer next increment of current tag
     $options['prerelease'] = [
       'label' => sprintf("Next %s (%d.%d.%d-%s.%d)", $preTag, $major, $minor, $patch, $preTag, $preNum + 1),
-      'new' => sprintf("%d.%d.%d-%s.%d", $major, $minor, $patch, $preTag, $preNum + 1)
+      'new' => sprintf("%d.%d.%d-%s.%d", $major, $minor, $patch, $preTag, $preNum + 1),
     ];
 
     // Transitions based on hierarchy: alpha -> beta -> rc -> stable
     if ($preTagLower === 'alpha') {
       $options['to-beta'] = [
         'label' => sprintf("Graduate to Beta (%d.%d.%d-beta.0)", $major, $minor, $patch),
-        'new' => sprintf("%d.%d.%d-beta.0", $major, $minor, $patch)
+        'new' => sprintf("%d.%d.%d-beta.0", $major, $minor, $patch),
       ];
     } elseif ($preTagLower === 'beta') {
       $options['to-rc'] = [
         'label' => sprintf("Graduate to RC (%d.%d.%d-rc.0)", $major, $minor, $patch),
-        'new' => sprintf("%d.%d.%d-rc.0", $major, $minor, $patch)
+        'new' => sprintf("%d.%d.%d-rc.0", $major, $minor, $patch),
       ];
     }
 
     $options['graduate'] = [
       'label' => sprintf("Graduate to stable (%d.%d.%d)", $major, $minor, $patch),
-      'new' => sprintf("%d.%d.%d", $major, $minor, $patch)
+      'new' => sprintf("%d.%d.%d", $major, $minor, $patch),
     ];
   } else {
     // New pre-releases
     $options['prepatch'] = [
       'label' => sprintf("Prepatch (%d.%d.%d-alpha.0)", $major, $minor, $patch + 1),
-      'new' => sprintf("%d.%d.%d-alpha.0", $major, $minor, $patch + 1)
+      'new' => sprintf("%d.%d.%d-alpha.0", $major, $minor, $patch + 1),
     ];
     $options['preminor'] = [
       'label' => sprintf("Preminor (%d.%d.0-alpha.0)", $major, $minor + 1),
-      'new' => sprintf("%d.%d.0-alpha.0", $major, $minor + 1)
+      'new' => sprintf("%d.%d.0-alpha.0", $major, $minor + 1),
     ];
     $options['premajor'] = [
       'label' => sprintf("Premajor (%d.0.0-alpha.0)", $major + 1),
-      'new' => sprintf("%d.0.0-alpha.0", $major + 1)
+      'new' => sprintf("%d.0.0-alpha.0", $major + 1),
     ];
   }
 
@@ -118,19 +120,19 @@ function get_version_options($current)
  */
 function render_header($msg)
 {
-    echo colorize("? ", COLOR_GREEN);
-    
-    // Parse for highlighting: "Prefix (currently VERSION)"
-    $parts = preg_split('/(\(currently .*?\))/', $msg, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
-    
-    foreach ($parts as $part) {
-        if (str_starts_with($part, '(currently ')) {
-            echo colorize($part, COLOR_YELLOW);
-        } else {
-            echo colorize($part, COLOR_CYAN);
-        }
+  echo colorize("? ", COLOR_GREEN);
+
+  // Parse for highlighting: "Prefix (currently VERSION)"
+  $parts = preg_split('/(\(currently .*?\))/', $msg, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
+
+  foreach ($parts as $part) {
+    if (str_starts_with($part, '(currently ')) {
+      echo colorize($part, COLOR_YELLOW);
+    } else {
+      echo colorize($part, COLOR_CYAN);
     }
-    echo "\n";
+  }
+  echo "\n";
 }
 
 function prompt($question, $options = [])
@@ -142,7 +144,9 @@ function prompt($question, $options = [])
   }
 
   // Fallback for non-Windows or if menu fails
-  if ($question) echo colorize("\n? " . $question . "\n", COLOR_CYAN);
+  if ($question) {
+    echo colorize("\n? " . $question . "\n", COLOR_CYAN);
+  }
   foreach ($options as $k => $o) {
     echo "  [" . colorize($k, COLOR_YELLOW) . "] " . $o['label'] . "\n";
   }
@@ -151,8 +155,12 @@ function prompt($question, $options = [])
   while (true) {
     echo colorize("Choice: ", COLOR_BLUE);
     $input = trim(fgets($handle));
-    if (isset($options[$input])) return $input;
-    if ($input === 'q') exit(0);
+    if (isset($options[$input])) {
+      return $input;
+    }
+    if ($input === 'q') {
+      exit(0);
+    }
     echo colorize("Invalid choice.\n", COLOR_RED);
   }
 }
@@ -166,25 +174,25 @@ function windows_menu($question, $options)
   $labels = array_map(fn($o) => str_replace("'", "''", $o['label']), $options);
   $descs = array_map(fn($o) => str_replace("'", "''", $o['desc'] ?? ''), $options);
   $optColors = array_map(fn($o) => $o['color'] ?? '', $options); // Support custom colors
-  
+
   $labelsStr = "'" . implode("','", $labels) . "'";
   $descsStr = "'" . implode("','", $descs) . "'";
   $colorsStr = "'" . implode("','", $optColors) . "'";
   $keysStr = "'" . implode("','", $keys) . "'";
-  
+
   // Header parsing for highlighting: "Prefix (currently VERSION)" or "Are you sure...?"
   $qParts = preg_split('/(\(currently .*?\))/', $question, -1, PREG_SPLIT_NO_EMPTY | PREG_SPLIT_DELIM_CAPTURE);
   $cleanParts = array_map(fn($p) => str_replace("'", "''", $p), $qParts);
-  
+
   // Explicitly check for confirmation prompt
   $isConfirm = (stripos($question, 'Are you sure') !== false);
   $isConfirmStr = $isConfirm ? '$true' : '$false';
 
   // Fix: If question is empty, ensure array is empty for PS to avoid stray "?"
   if (empty($question) || empty($cleanParts)) {
-      $qPartsStr = "";
+    $qPartsStr = "";
   } else {
-      $qPartsStr = "'" . implode("','", $cleanParts) . "'";
+    $qPartsStr = "'" . implode("','", $cleanParts) . "'";
   }
 
   $tempDir = sys_get_temp_dir();
@@ -395,7 +403,7 @@ if (file_exists($composerFile)) {
   $files['composer.json'] = [
     'path' => $composerFile,
     'current' => $composer['version'] ?? '0.0.0',
-    'type' => 'json'
+    'type' => 'json',
   ];
 }
 
@@ -407,7 +415,7 @@ foreach (glob($rootDir . '/.env*') as $path) {
       $files[basename($path)] = [
         'path' => $path,
         'current' => trim($m[1], " '\""),
-        'type' => 'env'
+        'type' => 'env',
       ];
     }
   }
@@ -424,6 +432,7 @@ foreach ($files as $name => $info) {
   $options = get_version_options($info['current']);
   if (empty($options)) {
     echo colorize("⚠️ Skipping $name: Invalid version format ({$info['current']})\n", COLOR_YELLOW);
+
     continue;
   }
 
@@ -432,21 +441,21 @@ foreach ($files as $name => $info) {
 
   // Call binary menu without its own header
   $choice = prompt("", $options);
-  
+
   // Inline feedback (MUI style)
   // Reconstruct message with colors: "Select..." (Cyan) "currently X" (Yellow)
-  $msgColored = colorize("Select a new version for $name ", COLOR_CYAN) . 
-                colorize("(currently {$info['current']})", COLOR_YELLOW);
-                
+  $msgColored = colorize("Select a new version for $name ", COLOR_CYAN) .
+    colorize("(currently {$info['current']})", COLOR_YELLOW);
+
   // Move up 1 line to overwrite the question
-  echo "\033[1A\r"; 
+  echo "\033[1A\r";
   echo colorize("? ", COLOR_GREEN) . $msgColored . " " . colorize($options[$choice]['label'], COLOR_GREEN) . "\n";
 
   $plannedChanges[$name] = [
     'old' => $info['current'],
     'new' => $options[$choice]['new'],
     'path' => $info['path'],
-    'type' => $info['type']
+    'type' => $info['type'],
   ];
 
   // Professional feedback like Lerna (removed to match mockup)
@@ -468,7 +477,7 @@ foreach ($plannedChanges as $name => $change) {
 echo "\n";
 $confirmOptions = [
   'y' => ['label' => 'Yes, apply these changes', 'desc' => 'Update files and exit', 'color' => 'Green'],
-  'n' => ['label' => 'No, cancel everything', 'desc' => 'Exit without saving', 'color' => 'Red']
+  'n' => ['label' => 'No, cancel everything', 'desc' => 'Exit without saving', 'color' => 'Red'],
 ];
 $confirm = prompt("Are you sure you want to create these versions", $confirmOptions);
 
@@ -482,7 +491,7 @@ echo "\n" . colorize("🚀 Applying changes...", COLOR_BLUE) . "\n";
 
 foreach ($plannedChanges as $name => $change) {
   echo "📝 Updating $name...";
-  
+
   if ($change['type'] === 'json') {
     $data = json_decode(file_get_contents($change['path']), true);
     $data['version'] = $change['new'];
@@ -495,11 +504,10 @@ foreach ($plannedChanges as $name => $change) {
     $content = preg_replace('/^APP_VERSION=.*$/m', "APP_VERSION={$change['new']}", $content);
     file_put_contents($change['path'], $content);
   }
-  
+
   echo colorize(" ✓\n", COLOR_GREEN);
 }
 
 echo "\n";
 echo colorize("  ✨ Version updates complete!", COLOR_GREEN) . "\n";
 echo "\n";
-

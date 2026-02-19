@@ -6,5 +6,4 @@ namespace JR\Tracker\Entity\Measurement\Contract;
 
 interface MeterReplacementInterface
 {
-
 }

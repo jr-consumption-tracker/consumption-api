@@ -6,47 +6,47 @@ namespace JR\Tracker\Mail;
 
 use DateTime;
 use JR\Tracker\Config;
+use JR\Tracker\Entity\User\Contract\UserInterface;
 use Symfony\Bridge\Twig\Mime\TemplatedEmail;
 use Symfony\Component\Mailer\MailerInterface;
 use Symfony\Component\Mime\BodyRendererInterface;
-use JR\Tracker\Entity\User\Contract\UserInterface;
 
 class SignUpEmail
 {
-    public function __construct(
-        private readonly Config $config,
-        private readonly MailerInterface $mailer,
-        private readonly BodyRendererInterface $renderer
-    ) {
+  public function __construct(
+    private readonly Config $config,
+    private readonly MailerInterface $mailer,
+    private readonly BodyRendererInterface $renderer
+  ) {
+  }
+
+  public function send(UserInterface $user, callable $linkGenerator): void
+  {
+    $appName = $this->config->get('app_name');
+
+    $expiresHours = 24;
+    $email = $user->getEmail();
+    $expirationDate = new DateTime(sprintf('+%d hours', $expiresHours), new \DateTimeZone('Europe/Prague'));
+    $activationLink = $linkGenerator($user, $expiresHours);
+
+    if (!isset($activationLink)) {
+      return;
     }
 
-    public function send(UserInterface $user, callable $linkGenerator): void
-    {
-        $appName = $this->config->get('app_name');
+    $message = (new TemplatedEmail())
+      ->from($this->config->get('mailer.from'))
+      ->to($email)
+      ->subject("[$appName] Potvrďte prosím svou e-mailovou adresu")
+      ->htmlTemplate('signupEmailTemplate.html.twig')
+      ->context(
+        [
+          'appName' => $appName,
+          'activationLink' => $activationLink,
+          'expirationDate' => $expirationDate->format('d. m. Y H:i'),
+        ]
+      );
 
-        $expiresHours = 24;
-        $email = $user->getEmail();
-        $expirationDate = new DateTime(sprintf('+%d hours', $expiresHours), new \DateTimeZone('Europe/Prague'));
-        $activationLink = $linkGenerator($user, $expiresHours);
-
-        if (!isset($activationLink)) {
-            return;
-        }
-
-        $message = (new TemplatedEmail())
-            ->from($this->config->get('mailer.from'))
-            ->to($email)
-            ->subject("[$appName] Potvrďte prosím svou e-mailovou adresu")
-            ->htmlTemplate('signupEmailTemplate.html.twig')
-            ->context(
-                [
-                    'appName' => $appName,
-                    'activationLink' => $activationLink,
-                    'expirationDate' => $expirationDate->format('d. m. Y H:i'),
-                ]
-            );
-
-        $this->renderer->render($message);
-        $this->mailer->send($message);
-    }
+    $this->renderer->render($message);
+    $this->mailer->send($message);
+  }
 }

@@ -6,7 +6,7 @@ namespace JR\Tracker\Enum;
 
 enum SameSiteEnum: string
 {
-    case STRICT = 'strict';
-    case LAX = 'lax';
-    case NONE = 'none';
+  case STRICT = 'strict';
+  case LAX = 'lax';
+  case NONE = 'none';
 }

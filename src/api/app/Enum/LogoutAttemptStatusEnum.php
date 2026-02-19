@@ -6,7 +6,7 @@ namespace JR\Tracker\Enum;
 
 enum LogoutAttemptStatusEnum
 {
-    case NO_COOKIE;
-    case NO_USER;
-    case LOGOUT_SUCCESS;
+  case NO_COOKIE;
+  case NO_USER;
+  case LOGOUT_SUCCESS;
 }

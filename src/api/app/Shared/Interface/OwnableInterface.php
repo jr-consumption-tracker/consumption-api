@@ -8,5 +8,5 @@ use JR\Tracker\Entity\User\Contract\UserInterface;
 
 interface OwnableInterface
 {
-    public function getUser(): UserInterface;
+  public function getUser(): UserInterface;
 }

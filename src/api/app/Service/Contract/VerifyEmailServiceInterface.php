@@ -8,7 +8,9 @@ use JR\Tracker\Entity\User\Contract\UserInterface;
 
 interface VerifyEmailServiceInterface
 {
-    public function attemptVerify(string $token): void;
-    public function attemptResend(string $email): void;
-    public function createLink(UserInterface $user, int $expiresHours): string;
+  public function attemptVerify(string $token): void;
+
+  public function attemptResend(string $email): void;
+
+  public function createLink(UserInterface $user, int $expiresHours): string;
 }
