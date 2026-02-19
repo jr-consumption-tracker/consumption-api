@@ -41,8 +41,6 @@ class PasswordResetService implements PasswordResetServiceInterface
         }
     }
 
-
-
     public function attemptReset(PasswordResetData $data): void
     {
         $passwordResetToken = $this->verifyToken($data->token);
