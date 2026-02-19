@@ -55,7 +55,7 @@ class AuthService implements AuthServiceInterface
 
         $user = $this->userRepository->create($data);
 
-        $this->signUpEmail->send($user, $this->verifyEmailService->createVerificationLink(...));
+        $this->signUpEmail->send($user, $this->verifyEmailService->createLink(...));
 
         return $user;
     }

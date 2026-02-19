@@ -24,6 +24,7 @@ class UserToken implements UserTokenInterface
     #[Id]
     #[GeneratedValue(strategy: "AUTO")]
     #[Column()]
+    /** @phpstan-ignore-next-line */
     private int $idUserToken;
 
     #[Column(length: 10)]
@@ -70,6 +71,7 @@ class UserToken implements UserTokenInterface
     // Setters
     public function setUser(UserInterface $user): self
     {
+        /** @var User $user */
         $this->user = $user;
         return $this;
     }

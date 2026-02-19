@@ -95,9 +95,7 @@ class UserRepository implements UserRepositoryInterface
             ->setIsSuccessful($successful)
             ->setUser($user);
 
-        if (isset($user)) {
-            $this->entityManagerService->sync($userLogHistory);
-        }
+        $this->entityManagerService->sync($userLogHistory);
     }
 
     public function getRoleByIdUser(string $idUser): array

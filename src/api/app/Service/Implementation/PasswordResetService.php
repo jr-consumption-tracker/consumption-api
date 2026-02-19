@@ -34,7 +34,7 @@ class PasswordResetService implements PasswordResetServiceInterface
         $user = $this->userRepository->getByEmail($email);
 
         if (isset($user)) {
-            $this->passwordResetEmail->send($user, $this->createPasswordResetLink(...));
+            $this->passwordResetEmail->send($user, $this->createLink(...));
         } else {
             // Dummy call
             password_hash(bin2hex(random_bytes(16)), PASSWORD_BCRYPT, ['cost' => 4]);
@@ -51,7 +51,7 @@ class PasswordResetService implements PasswordResetServiceInterface
     }
 
     #REGION Private methods
-    private function createPasswordResetLink(UserInterface $user, int $expiresHours): ?string
+    private function createLink(UserInterface $user, int $expiresHours): string
     {
         $email = $user->getEmail();
         $token = $this->passwordResetRepository->getByEmail($email);

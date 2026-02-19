@@ -30,7 +30,7 @@ class VerifyEmailService implements VerifyEmailServiceInterface
         $this->verifyEmail($verificationToken);
     }
 
-    private function createVerificationLink(UserInterface $user, int $expiresHours): ?string
+    public function createLink(UserInterface $user, int $expiresHours): string
     {
         $email = $user->getEmail();
         $verificationToken = $this->verifyEmailRepository->getActiveTokenByEmail($email);
@@ -68,7 +68,7 @@ class VerifyEmailService implements VerifyEmailServiceInterface
             return;
         }
 
-        $this->signUpEmail->send($user, $this->createVerificationLink(...));
+        $this->signUpEmail->send($user, $this->createLink(...));
     }
 
     #REGION Private methods

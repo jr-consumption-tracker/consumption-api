@@ -33,7 +33,7 @@
     "lint:summary": "vendor/bin/phpcs --standard=phpcs.xml --report=summary",
     "lint:fix": "vendor/bin/php-cs-fixer fix",
     "release:version": "php scripts/releaseVersion.php",
-    "release:analyze": "vendor/bin/phpstan analyse app --ansi",
+    "release:analyze": "vendor/bin/phpstan analyse app --ansi --memory-limit 512M",
     "release:changelog": "php scripts/releaseChangelog.php",
     "release:tag": "php scripts/releaseTag.php"
   },

@@ -78,8 +78,9 @@ class UserLoginHistory implements UserLoginHistoryInterface
         $this->isSuccessful = $isSuccessful;
         return $this;
     }
-    public function setUser(User $user): self
+    public function setUser(UserInterface $user): self
     {
+        /** @var User $user */
         $this->user = $user;
         return $this;
     }

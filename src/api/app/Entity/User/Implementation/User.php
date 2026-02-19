@@ -32,6 +32,7 @@ class User implements UserInterface
     private string $email;
 
     #[Column(nullable: true)]
+    /** @phpstan-ignore-next-line */
     private ?\DateTimeImmutable $emailVerifiedAt;
 
     #[Column(length: 255)]
@@ -136,6 +137,14 @@ class User implements UserInterface
     {
         return $this->consumptionPlace;
     }
+    public function getUserLoginHistory(): Collection
+    {
+        return $this->userLoginHistory;
+    }
+    public function getUserToken(): Collection
+    {
+        return $this->userToken;
+    }
 
 
     // Setters
@@ -157,6 +166,21 @@ class User implements UserInterface
     public function setPassword(string $hashedPassword): self
     {
         $this->password = $hashedPassword;
+        return $this;
+    }
+    public function stIsDisabled(?bool $isDisabled): self
+    {
+        $this->isDisabled = $isDisabled;
+        return $this;
+    }
+    public function setWebLoginRestrictedUntil(?DateTime $webLoginRestrictedUntil): self
+    {
+        $this->webLoginRestrictedUntil = $webLoginRestrictedUntil;
+        return $this;
+    }
+    public function setAdminLoginRestrictedUntil(?DateTime $adminLoginRestrictedUntil): self
+    {
+        $this->adminLoginRestrictedUntil = $adminLoginRestrictedUntil;
         return $this;
     }
     public function setCreatedAt(): self
