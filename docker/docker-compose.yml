@@ -86,6 +86,7 @@ services:
     command: redis-server --requirepass mypassword
     networks:
       - consumption-tracker-network
+      
 networks:
   consumption-tracker-network:
     driver: bridge

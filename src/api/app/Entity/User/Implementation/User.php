@@ -38,8 +38,8 @@ class User implements UserInterface
   #[Column(length: 255)]
   private string $password;
 
-  #[Column(nullable: false)]
-  private ?bool $isDisabled;
+    #[Column(nullable: true)]
+    private ?bool $isDisabled;
 
   #[Column(nullable: true)]
   private ?DateTime $webLoginRestrictedUntil;
