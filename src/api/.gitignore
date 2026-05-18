@@ -1,11 +1,5 @@
 # Vendor
 /vendor
 
-# Misc
-.env
-.env.local
-.env.development
-.env.production
-
 # Testing
 .phpunit.result.cache
