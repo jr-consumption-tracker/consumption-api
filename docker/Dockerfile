@@ -31,6 +31,9 @@ COPY xdebug.ini "${PHP_INI_DIR}/conf.d"
 # Set working directory
 WORKDIR /var/www/html/api
 
+# Pre-create Xdebug log and ensure permissions
+RUN touch /tmp/xdebug.log && chmod 777 /tmp/xdebug.log
+
 # Expose port 9000
 EXPOSE 9000
 
