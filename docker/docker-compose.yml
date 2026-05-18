@@ -17,7 +17,12 @@ services:
     networks:
       - consumption-tracker-network
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      mailhog:
+        condition: service_started
 
   nginx:
     image: nginx:latest
@@ -30,7 +35,8 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/conf.d/nginx.conf:ro
       - ./certificates:/etc/nginx/certificates:ro
     depends_on:
-      - app
+      app:
+        condition: service_started
     networks:
       - consumption-tracker-network
     extra_hosts:
@@ -50,6 +56,22 @@ services:
       - db_data:/var/lib/mysql
     networks:
       - consumption-tracker-network
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-prootpassword",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
 
   phpmyadmin:
     image: phpmyadmin:latest
@@ -61,7 +83,8 @@ services:
       PMA_HOST: db
       MYSQL_ROOT_PASSWORD: rootpassword
     depends_on:
-      - db
+      db:
+        condition: service_healthy
     networks:
       - consumption-tracker-network
 
@@ -86,7 +109,11 @@ services:
     command: redis-server --requirepass mypassword
     networks:
       - consumption-tracker-network
-      
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "mypassword", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 networks:
   consumption-tracker-network:
     driver: bridge
