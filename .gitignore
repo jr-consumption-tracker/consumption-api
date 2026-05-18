@@ -1,2 +1,7 @@
 # Linter Cache
 .php-cs-fixer.cache
+
+# Misc
+.env
+.env.development
+.env.local
