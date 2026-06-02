@@ -21,12 +21,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
-      mailhog:
-        condition: service_started
-
   nginx:
     image: nginx:latest
     container_name: consumption-tracker-api-nginx
+    restart: always
     ports:
       - "3010:80"
       - "3443:443"
@@ -45,6 +43,7 @@ services:
   db:
     image: mysql:8.0
     container_name: consumption-tracker-api-mysql
+    restart: always
     ports:
       - "3307:3306"
     environment:
@@ -99,6 +98,12 @@ services:
       - "1025:1025"
     networks:
       - consumption-tracker-network
+    healthcheck:
+      test: ["CMD", "wget", "-qO-", "http://localhost:8025"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   redis:
     image: redis:latest

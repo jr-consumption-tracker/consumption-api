@@ -34,7 +34,7 @@ WORKDIR /var/www/html/api
 # Pre-create Xdebug log and ensure permissions
 RUN touch /tmp/xdebug.log && chmod 777 /tmp/xdebug.log
 
-# Expose port 9000
-EXPOSE 9000
+# Expose port 9003
+EXPOSE 9003
 
 CMD ["php-fpm"]
