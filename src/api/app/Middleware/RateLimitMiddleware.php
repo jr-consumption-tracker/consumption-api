@@ -7,6 +7,7 @@ namespace JR\Tracker\Middleware;
 use JR\Tracker\Config;
 use JR\Tracker\Enum\HttpStatusCode;
 use JR\Tracker\Service\Contract\RequestServiceInterface;
+use JR\Tracker\Shared\ResponseFormatter\ResponseFormatter;
 use Psr\Http\Message\ResponseFactoryInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
@@ -21,7 +22,8 @@ class RateLimitMiddleware implements MiddlewareInterface
     private readonly ResponseFactoryInterface $responseFactory,
     private readonly RequestServiceInterface $requestService,
     private readonly Config $config,
-    private readonly RateLimiterFactory $rateLimiterFactory
+    private readonly RateLimiterFactory $rateLimiterFactory,
+    private readonly ResponseFormatter $responseFormatter
   ) {
   }
 
@@ -33,7 +35,12 @@ class RateLimitMiddleware implements MiddlewareInterface
     $limiter = $this->rateLimiterFactory->create($route->getName() . '_' . $clientIp);
 
     if ($limiter->consume()->isAccepted() === false) {
-      return $this->responseFactory->createResponse(HttpStatusCode::TOO_MANY_REQUESTS->value, 'Too many requests');
+      $response = $this->responseFactory->createResponse();
+
+      return $this->responseFormatter->asJson(
+        $response->withStatus(HttpStatusCode::TOO_MANY_REQUESTS->value),
+        ['general' => ['tooManyRequests']]
+      );
     }
 
     return $handler->handle($request);

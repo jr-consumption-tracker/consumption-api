@@ -20,6 +20,8 @@ interface UserRepositoryInterface
 
   public function logLoginAttempt(DomainContextEnum $domain, UserInterface $user, bool $successful): void;
 
+  public function checkAndRestrictLogin(DomainContextEnum $domain, UserInterface $user): void;
+
   public function getRoleByIdUser(string $idUser): array;
 
   public function refreshTokenExists(string $refreshToken): bool;

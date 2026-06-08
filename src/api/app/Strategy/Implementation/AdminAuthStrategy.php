@@ -47,34 +47,36 @@ class AdminAuthStrategy implements AuthStrategyInterface
   public function verifyUser(?UserInterface $user, string $password): void
   {
     if (!isset($user)) {
-      throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
+      throw new ValidationException(['general' => ['invalidCredentials']], HttpStatusCode::UNAUTHORIZED->value);
     }
 
     if ($user->getAdminLoginRestrictedUntil() && $user->getAdminLoginRestrictedUntil() > new \DateTime()) {
-      throw new ValidationException(['forbidden' => ['loginRestricted']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['tooManyRequests']], HttpStatusCode::TOO_MANY_REQUESTS->value);
     }
 
     if ($user->getIsDisabled()) {
-      throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['accessDenied']], HttpStatusCode::LOCKED->value);
     }
 
     if (!password_verify($password, $user->getPassword())) {
       $this->userRepository->logLoginAttempt(DomainContextEnum::ADMIN, $user, false);
+      $this->userRepository->checkAndRestrictLogin(DomainContextEnum::ADMIN, $user);
 
-      throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
+      throw new ValidationException(['general' => ['invalidCredentials']], HttpStatusCode::UNAUTHORIZED->value);
     }
 
     $emailVerifiedAt = $user->getEmailVerifiedAt();
     if (!isset($emailVerifiedAt)) {
-      throw new ValidationException(['forbidden' => ['emailNotVerified']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['action' => ['emailNotVerified']], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
 
     $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
 
     if (!UserRoleHelper::hasRole($userRoles, UserRoleTypeEnum::ADMIN)) {
       $this->userRepository->logLoginAttempt(DomainContextEnum::ADMIN, $user, false);
+      $this->userRepository->checkAndRestrictLogin(DomainContextEnum::ADMIN, $user);
 
-      throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['accessDenied']], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
   }
 }

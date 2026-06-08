@@ -17,7 +17,7 @@ use JR\Tracker\Entity\User\Contract\UserPermissionOverrideInterface;
 class UserPermissionOverride implements UserPermissionOverrideInterface
 {
   #[Column(type: 'boolean')]
-  private bool $allow;
+  private bool $isAllowed;
 
   #[Id]
   #[ManyToOne(targetEntity: User::class, inversedBy: 'userPermissionOverride')]
@@ -30,9 +30,9 @@ class UserPermissionOverride implements UserPermissionOverrideInterface
   private UserPermission $userPermission;
 
   // Getters
-  public function isAllow(): bool
+  public function isAllowed(): bool
   {
-    return $this->allow;
+    return $this->isAllowed;
   }
 
   public function getUser(): User
@@ -46,9 +46,9 @@ class UserPermissionOverride implements UserPermissionOverrideInterface
   }
 
   // Setters
-  public function setAllow(bool $allow): self
+  public function setIsAllowed(bool $isAllowed): self
   {
-    $this->allow = $allow;
+    $this->isAllowed = $isAllowed;
 
     return $this;
   }

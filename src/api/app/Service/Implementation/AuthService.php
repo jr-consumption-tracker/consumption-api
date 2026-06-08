@@ -172,6 +172,7 @@ class AuthService implements AuthServiceInterface
     }
 
     $this->sessionService->regenerate();
+    $this->sessionService->save();
 
     $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
 
@@ -261,6 +262,7 @@ class AuthService implements AuthServiceInterface
       $this->sessionService->start();
     }
     $this->sessionService->regenerate();
+    $this->sessionService->save();
 
     return [
       'email' => $user->getEmail(),

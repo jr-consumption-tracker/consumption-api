@@ -6,7 +6,6 @@ use Clockwork\Clockwork;
 use Clockwork\Support\Slim\ClockworkMiddleware;
 use JR\Tracker\Config;
 use JR\Tracker\Enum\AppEnvironmentEnum;
-use JR\Tracker\Middleware\StartSessionMiddleware;
 use JR\Tracker\Middleware\ValidationExceptionMiddleware;
 use JR\Tracker\Middleware\VerificationExceptionMiddleware;
 use Slim\App;
@@ -21,7 +20,6 @@ return function (App $app) {
 
   $app->add(VerificationExceptionMiddleware::class);
   $app->add(ValidationExceptionMiddleware::class);
-  $app->add(StartSessionMiddleware::class);
 
   if (AppEnvironmentEnum::isDevelopment($config->get('app_environment'))) {
     $app->add(new ClockworkMiddleware($app, $container->get(Clockwork::class)));
