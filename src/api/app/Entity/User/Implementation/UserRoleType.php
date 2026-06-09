@@ -10,7 +10,10 @@ use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
-use Doctrine\ORM\Mapping\OneToMany;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\Table;
 use JR\Tracker\Entity\User\Contract\UserRoleTypeInterface;
 
@@ -33,16 +36,19 @@ class UserRoleType implements UserRoleTypeInterface
   #[Column(length: 50)]
   private string $description;
 
-  #[OneToMany(mappedBy: 'userRleType', targetEntity: UserRole::class)]
-  private Collection $userRole;
+  #[ManyToMany(targetEntity: User::class, mappedBy: 'userRoleTypes')]
+  private Collection $users;
 
-  #[OneToMany(mappedBy: 'userRoleType', targetEntity: UserRolePermission::class)]
-  private Collection $userRolePermission;
+  #[ManyToMany(targetEntity: UserPermission::class, cascade: ['persist'])]
+  #[JoinTable(name: 'userRolePermission')]
+  #[JoinColumn(name: 'idUserRoleType', referencedColumnName: 'idUserRoleType')]
+  #[InverseJoinColumn(name: 'idUserPermission', referencedColumnName: 'idUserPermission')]
+  private Collection $permissions;
 
   public function __construct()
   {
-    $this->userRole = new ArrayCollection();
-    $this->userRolePermission = new ArrayCollection();
+    $this->users = new ArrayCollection();
+    $this->permissions = new ArrayCollection();
   }
 
   // Getters
@@ -66,14 +72,9 @@ class UserRoleType implements UserRoleTypeInterface
     return $this->description;
   }
 
-  public function getUserRole(): Collection
+  public function getPermissions(): Collection
   {
-    return $this->userRole;
-  }
-
-  public function getUserRolePermission(): Collection
-  {
-    return $this->userRolePermission;
+    return $this->permissions;
   }
 
   // Setters
@@ -94,13 +95,6 @@ class UserRoleType implements UserRoleTypeInterface
   public function setDescription(string $description): self
   {
     $this->description = $description;
-
-    return $this;
-  }
-
-  public function setUserRolePermission(Collection $userRolePermission): self
-  {
-    $this->userRolePermission = $userRolePermission;
 
     return $this;
   }

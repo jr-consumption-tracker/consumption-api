@@ -11,7 +11,7 @@ interface UserRoleTypeInterface
   // Getters
   public function getValue(): int;
 
-  public function getUserRolePermission(): Collection;
+  public function getPermissions(): Collection;
 
   // Setters
   public function setCode(string $code): self;

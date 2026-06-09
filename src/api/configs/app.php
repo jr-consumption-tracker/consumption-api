@@ -107,6 +107,6 @@ return [
     'id' => 'default',
     'policy' => 'fixed_window',
     'interval' => '1 minute',
-    'limit' => 25,
+    'limit' => 15,
   ],
 ];

@@ -33,15 +33,11 @@ class UserPermission implements UserPermissionInterface
   #[Column(type: "smallint", unique: true)]
   private int $value;
 
-  #[OneToMany(mappedBy: 'userPermission', targetEntity: UserRolePermission::class)]
-  private Collection $userRolePermission;
-
   #[OneToMany(mappedBy: 'userPermission', targetEntity: UserPermissionOverride::class)]
   private Collection $userPermissionOverride;
 
   public function __construct()
   {
-    $this->userRolePermission = new ArrayCollection();
     $this->userPermissionOverride = new ArrayCollection();
   }
 
@@ -64,11 +60,6 @@ class UserPermission implements UserPermissionInterface
   public function getValue(): int
   {
     return $this->value;
-  }
-
-  public function getUserRolePermission(): Collection
-  {
-    return $this->userRolePermission;
   }
 
   public function getUserPermissionOverride(): Collection

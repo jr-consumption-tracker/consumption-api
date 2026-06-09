@@ -5,12 +5,17 @@ declare(strict_types=1);
 namespace JR\Tracker\Entity\User\Implementation;
 
 use DateTime;
+use JR\Tracker\Enum\DomainContextEnum;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping\Column;
 use Doctrine\ORM\Mapping\Entity;
 use Doctrine\ORM\Mapping\GeneratedValue;
 use Doctrine\ORM\Mapping\Id;
+use Doctrine\ORM\Mapping\InverseJoinColumn;
+use Doctrine\ORM\Mapping\JoinColumn;
+use Doctrine\ORM\Mapping\JoinTable;
+use Doctrine\ORM\Mapping\ManyToMany;
 use Doctrine\ORM\Mapping\OneToMany;
 use Doctrine\ORM\Mapping\OneToOne;
 use Doctrine\ORM\Mapping\Table;
@@ -38,8 +43,8 @@ class User implements UserInterface
   #[Column(length: 255)]
   private string $password;
 
-    #[Column(nullable: true)]
-    private ?bool $isDisabled;
+  #[Column(nullable: true)]
+  private ?bool $isDisabled;
 
   #[Column(nullable: true)]
   private ?DateTime $webLoginRestrictedUntil;
@@ -50,32 +55,34 @@ class User implements UserInterface
   #[Column(type: 'datetime_immutable', options: ['default' => 'CURRENT_TIMESTAMP'])]
   private \DateTimeImmutable $createdAt;
 
-  #[OneToOne(mappedBy: 'user', targetEntity: UserInfo::class, cascade: ['persist', 'remove'])]
+  #[OneToOne(mappedBy: 'user', targetEntity: UserInfo::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
   private UserInfo $userInfo;
 
-  #[OneToMany(mappedBy: 'user', targetEntity: UserRole::class, cascade: ['persist', 'remove'])]
-  private Collection $userRole;
+  #[ManyToMany(targetEntity: UserRoleType::class, inversedBy: 'users')]
+  #[JoinTable(name: 'userRole')]
+  #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser')]
+  #[InverseJoinColumn(name: 'idUserRoleType', referencedColumnName: 'idUserRoleType')]
+  private Collection $userRoleTypes;
 
-  #[OneToMany(mappedBy: 'user', targetEntity: UserPermissionOverride::class, cascade: ['persist', 'remove'])]
-  private Collection $permissionOverride;
+  #[OneToMany(mappedBy: 'user', targetEntity: UserPermissionOverride::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
+  private Collection $userPermissionOverride;
 
-  #[OneToMany(mappedBy: 'user', targetEntity: Subscription::class, cascade: ['persist', 'remove'])]
+  #[OneToMany(mappedBy: 'user', targetEntity: Subscription::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
   private Collection $subscription;
 
-  #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class, cascade: ['persist', 'remove'])]
+  #[OneToMany(mappedBy: 'user', targetEntity: ConsumptionPlace::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
   private Collection $consumptionPlace;
 
-  #[OneToMany(mappedBy: 'user', targetEntity: UserLoginHistory::class, cascade: ['persist', 'remove'])]
+  #[OneToMany(mappedBy: 'user', targetEntity: UserLoginHistory::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
   private Collection $userLoginHistory;
 
-
-  #[OneToMany(mappedBy: 'user', targetEntity: UserToken::class, cascade: ['persist', 'remove'])]
+  #[OneToMany(mappedBy: 'user', targetEntity: UserToken::class, cascade: ['persist', 'remove'], orphanRemoval: true)]
   private Collection $userToken;
 
   public function __construct()
   {
-    $this->userRole = new ArrayCollection();
-    $this->permissionOverride = new ArrayCollection();
+    $this->userRoleTypes = new ArrayCollection();
+    $this->userPermissionOverride = new ArrayCollection();
     $this->subscription = new ArrayCollection();
     $this->consumptionPlace = new ArrayCollection();
     $this->userLoginHistory = new ArrayCollection();
@@ -128,14 +135,14 @@ class User implements UserInterface
     return $this->userInfo;
   }
 
-  public function getUserRole(): Collection
+  public function getUserRoleTypes(): Collection
   {
-    return $this->userRole;
+    return $this->userRoleTypes;
   }
 
-  public function getPermissionOverride(): Collection
+  public function getUserPermissionOverride(): Collection
   {
-    return $this->permissionOverride;
+    return $this->userPermissionOverride;
   }
 
   public function getSubscription(): Collection
@@ -187,7 +194,7 @@ class User implements UserInterface
     return $this;
   }
 
-  public function stIsDisabled(?bool $isDisabled): self
+  public function setIsDisabled(?bool $isDisabled): self
   {
     $this->isDisabled = $isDisabled;
 
@@ -204,6 +211,17 @@ class User implements UserInterface
   public function setAdminLoginRestrictedUntil(?DateTime $adminLoginRestrictedUntil): self
   {
     $this->adminLoginRestrictedUntil = $adminLoginRestrictedUntil;
+
+    return $this;
+  }
+
+  public function setLoginRestrictedUntil(DomainContextEnum $domain, DateTime $restrictedUntil): self
+  {
+    if ($domain === DomainContextEnum::WEB) {
+      $this->webLoginRestrictedUntil = $restrictedUntil;
+    } else {
+      $this->adminLoginRestrictedUntil = $restrictedUntil;
+    }
 
     return $this;
   }

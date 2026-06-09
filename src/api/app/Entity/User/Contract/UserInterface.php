@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace JR\Tracker\Entity\User\Contract;
 
+use JR\Tracker\Enum\DomainContextEnum;
+
 interface UserInterface
 {
   // Getters
@@ -29,4 +31,6 @@ interface UserInterface
   public function setEmailVerifiedAt(): self;
 
   public function setPassword(string $password): self;
+
+  public function setLoginRestrictedUntil(DomainContextEnum $domain, \DateTime $restrictedUntil): self;
 }
