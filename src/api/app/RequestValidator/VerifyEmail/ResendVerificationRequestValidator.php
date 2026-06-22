@@ -20,11 +20,11 @@ class ResendVerificationRequestValidator implements RequestValidatorInterface
     $v = new Validator($data);
 
     // Validate mandatory fields
-    $v->rule('required', 'email')->message('emailRequired');
+    $v->rule('required', 'email')->message('required');
 
 
     if (!$v->validate()) {
-      throw new ValidationException($v->errors(), HttpStatusCode::BAD_REQUEST->value);
+      throw new ValidationException(['validationError' => $v->errors()], HttpStatusCode::BAD_REQUEST->value);
     }
 
     return $data;

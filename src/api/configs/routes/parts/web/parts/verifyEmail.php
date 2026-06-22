@@ -13,7 +13,7 @@ function getWebVerifyEmailRoutes(RouteCollectorProxy $api): RouteCollectorProxy
       ->setName('web_verifyEmail')
       ->add(RateLimitMiddleware::class);
     $verifyEmail->post("/resend", [VerifyEmailController::class, 'resend'])
-      ->setName('web_resend')
+      ->setName('web_resendEmail')
       ->add(RateLimitMiddleware::class);
   });
 

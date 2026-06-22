@@ -122,7 +122,6 @@ class AuthService implements AuthServiceInterface
   }
 
   #region Private methods
-
   private function login(UserInterface $user, bool $persistLogin, DomainContextEnum $domain): array
   {
     $strategy = $this->authStrategyFactory->create($domain);
@@ -269,7 +268,5 @@ class AuthService implements AuthServiceInterface
       'accessToken' => $accessToken,
     ];
   }
-
-
-  #region
+  #endregion
 }
