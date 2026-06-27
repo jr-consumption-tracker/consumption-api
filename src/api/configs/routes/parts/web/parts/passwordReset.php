@@ -12,6 +12,9 @@ function getWebPasswordResetRoutes(RouteCollectorProxy $api): RouteCollectorProx
     $passwordReset->post('/request', [PasswordResetController::class, "request"])
       ->setName('web_requestPasswordReset')
       ->add(RateLimitMiddleware::class);
+    $passwordReset->post('/verifyToken', [PasswordResetController::class, "verifyToken"])
+      ->setName('web_verifyPasswordResetToken')
+      ->add(RateLimitMiddleware::class);
     $passwordReset->post('/reset', [PasswordResetController::class, "reset"])
       ->setName('web_resetPassword')
       ->add(RateLimitMiddleware::class);

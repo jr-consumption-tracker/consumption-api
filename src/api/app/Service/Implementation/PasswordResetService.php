@@ -49,6 +49,19 @@ class PasswordResetService implements PasswordResetServiceInterface
     $this->resetPassword($user, $data->password, $data->token);
   }
 
+  public function verifyToken(string $token): UserPasswordResetInterface
+  {
+    $passwordResetToken = $this->passwordResetRepository->getByToken($token);
+
+    if (!isset($passwordResetToken)) {
+      throw new VerificationException(['tokenError' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
+    } elseif ($passwordResetToken->getIsExpired()) {
+      throw new VerificationException(['tokenError' => ['expiredToken']], HttpStatusCode::GONE->value);
+    }
+
+    return $passwordResetToken;
+  }
+
   #REGION Private methods
   private function createLink(UserInterface $user, int $expiresHours): string
   {
@@ -76,19 +89,6 @@ class PasswordResetService implements PasswordResetServiceInterface
     $passwordResetCallbackUrl = $this->config->get('password_reset_callback_url');
 
     return (string) $baseUrl . $passwordResetCallbackUrl . $token->getToken();
-  }
-
-  private function verifyToken(string $token): UserPasswordResetInterface
-  {
-    $passwordResetToken = $this->passwordResetRepository->getByToken($token);
-
-    if (!isset($passwordResetToken)) {
-      throw new VerificationException(['token' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
-    } elseif ($passwordResetToken->getIsExpired()) {
-      throw new VerificationException(['token' => ['expiredToken']], HttpStatusCode::GONE->value);
-    }
-
-    return $passwordResetToken;
   }
 
   private function resetPassword(UserInterface $user, string $password, string $token): void
