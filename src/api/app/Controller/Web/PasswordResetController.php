@@ -68,4 +68,23 @@ class PasswordResetController
 
     return $response->withStatus(HttpStatusCode::OK->value);
   }
+
+  /**
+   * Verifies a password reset token from the query string.
+   *
+   * @param Request $request HTTP request containing the token query parameter
+   * @param Response $response HTTP response
+   * @return Response Response with 200 OK status if the token is valid
+   * @throws \JR\Tracker\Exception\ValidationException When the token is invalid or expired
+   * @author Jan Ribka
+   */
+  public function verifyToken(Request $request, Response $response): Response
+  {
+    $queryParams = $request->getQueryParams();
+    $token = $queryParams["token"] ?? "";
+
+    $this->passwordResetService->verifyToken($token);
+
+    return $response->withStatus(HttpStatusCode::OK->value);
+  }
 }
