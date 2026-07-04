@@ -44,34 +44,36 @@ class WebAuthStrategy implements AuthStrategyInterface
   public function verifyUser(?UserInterface $user, string $password): void
   {
     if (!isset($user)) {
-      throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
+      throw new ValidationException(['general' => ['invalidCredentials']], HttpStatusCode::UNAUTHORIZED->value);
     }
 
     if ($user->getWebLoginRestrictedUntil() && $user->getWebLoginRestrictedUntil() > new \DateTime()) {
-      throw new ValidationException(['forbidden' => ['loginRestricted']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['tooManyRequests']], HttpStatusCode::TOO_MANY_REQUESTS->value);
     }
 
     if ($user->getIsDisabled()) {
-      throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['accessDenied']], HttpStatusCode::LOCKED->value);
     }
 
     if (!password_verify($password, $user->getPassword())) {
       $this->userRepository->logLoginAttempt(DomainContextEnum::WEB, $user, false);
+      $this->userRepository->checkAndRestrictLogin(DomainContextEnum::WEB, $user);
 
-      throw new ValidationException(['unauthorized' => ['incorrectLoginPassword']], HttpStatusCode::UNAUTHORIZED->value);
+      throw new ValidationException(['general' => ['invalidCredentials']], HttpStatusCode::UNAUTHORIZED->value);
     }
 
     $emailVerifiedAt = $user->getEmailVerifiedAt();
     if (!isset($emailVerifiedAt)) {
-      throw new ValidationException(['forbidden' => ['emailNotVerified']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['action' => ['emailNotVerified']], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
 
     $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
 
     if (!UserRoleHelper::hasRole($userRoles, UserRoleTypeEnum::EDITOR)) {
       $this->userRepository->logLoginAttempt(DomainContextEnum::WEB, $user, false);
+      $this->userRepository->checkAndRestrictLogin(DomainContextEnum::WEB, $user);
 
-      throw new ValidationException(['forbidden' => ['accessDenied']], HttpStatusCode::FORBIDDEN->value);
+      throw new ValidationException(['general' => ['accessDenied']], HttpStatusCode::UNPROCESSABLE_ENTITY->value);
     }
   }
 }

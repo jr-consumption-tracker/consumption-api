@@ -7,7 +7,6 @@ namespace JR\Tracker\Fixture\Fixtures;
 use Doctrine\Common\DataFixtures\FixtureInterface;
 use Doctrine\Persistence\ObjectManager;
 use JR\Tracker\Entity\User\Implementation\UserPermission;
-use JR\Tracker\Entity\User\Implementation\UserRolePermission;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
 
 class UserRolePermissionFixture implements FixtureInterface
@@ -196,14 +195,9 @@ class UserRolePermissionFixture implements FixtureInterface
           continue;
         }
 
-        $rolePermission = new UserRolePermission();
-        $rolePermission
-          ->setUserRoleType($role)
-          ->setUserPermission($permission);
-
-        $manager->persist($rolePermission);
-
+        $role->getPermissions()->add($permission);
       }
+
       $manager->persist($role);
     }
 

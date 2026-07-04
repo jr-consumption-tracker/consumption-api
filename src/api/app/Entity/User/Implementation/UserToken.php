@@ -36,7 +36,7 @@ class UserToken implements UserTokenInterface
   #[Column(type: 'datetime')]
   private \DateTime $expiresAt;
 
-  #[ManyToOne(inversedBy: 'idUser', targetEntity: User::class)]
+  #[ManyToOne(inversedBy: 'userToken', targetEntity: User::class)]
   #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
   private User $user;
 
@@ -56,7 +56,7 @@ class UserToken implements UserTokenInterface
     return DomainContextEnum::from($this->domain);
   }
 
-  public function getRefreshToken(): string
+  public function getRefreshToken(): ?string
   {
     return $this->refreshToken;
   }

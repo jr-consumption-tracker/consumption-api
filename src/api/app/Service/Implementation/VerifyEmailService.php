@@ -78,9 +78,9 @@ class VerifyEmailService implements VerifyEmailServiceInterface
     $verificationToken = $this->userRepository->getVerificationToken($token);
 
     if (!isset($verificationToken)) {
-      throw new VerificationException(['notFound' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
+      throw new VerificationException(['tokenError' => ['invalidToken']], HttpStatusCode::NOT_FOUND->value);
     } elseif ($verificationToken->getIsExpired()) {
-      throw new VerificationException(['gone' => ['expiredToken']], HttpStatusCode::GONE->value);
+      throw new VerificationException(['tokenError' => ['expiredToken']], HttpStatusCode::GONE->value);
     }
 
     return $verificationToken;

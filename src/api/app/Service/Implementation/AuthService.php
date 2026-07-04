@@ -122,7 +122,6 @@ class AuthService implements AuthServiceInterface
   }
 
   #region Private methods
-
   private function login(UserInterface $user, bool $persistLogin, DomainContextEnum $domain): array
   {
     $strategy = $this->authStrategyFactory->create($domain);
@@ -172,6 +171,7 @@ class AuthService implements AuthServiceInterface
     }
 
     $this->sessionService->regenerate();
+    $this->sessionService->save();
 
     $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
 
@@ -261,13 +261,12 @@ class AuthService implements AuthServiceInterface
       $this->sessionService->start();
     }
     $this->sessionService->regenerate();
+    $this->sessionService->save();
 
     return [
       'email' => $user->getEmail(),
       'accessToken' => $accessToken,
     ];
   }
-
-
-  #region
+  #endregion
 }

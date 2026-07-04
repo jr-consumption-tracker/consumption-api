@@ -9,7 +9,9 @@ use Slim\Routing\RouteCollectorProxy;
 function getWebAuthRoutes(RouteCollectorProxy $api)
 {
   $api->group('/auth', function (RouteCollectorProxy $auth) {
-    $auth->post('/register', [AuthController::class, "register"]);
+    $auth->post('/register', [AuthController::class, "register"])
+      ->setName('web_register')
+      ->add(RateLimitMiddleware::class);
     $auth->post("/login", [AuthController::class, "login"])
       ->setName('web_login')
       ->add(RateLimitMiddleware::class);

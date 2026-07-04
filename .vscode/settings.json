@@ -1,5 +1,5 @@
 {
-  "php.version": "8.4.16",
+  "php.version": "8.5",
   "editor.formatOnSave": true,
   "php-cs-fixer.config": "src/api/.php-cs-fixer.dist.php",
   "php-cs-fixer.executablePath": "src/api/vendor/bin/php-cs-fixer.bat",

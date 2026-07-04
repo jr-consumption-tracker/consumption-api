@@ -10,7 +10,6 @@ use JR\Tracker\Entity\User\Contract\UserTokenInterface;
 use JR\Tracker\Entity\User\Implementation\User;
 use JR\Tracker\Entity\User\Implementation\UserInfo;
 use JR\Tracker\Entity\User\Implementation\UserLoginHistory;
-use JR\Tracker\Entity\User\Implementation\UserRole;
 use JR\Tracker\Entity\User\Implementation\UserRoleType;
 use JR\Tracker\Entity\User\Implementation\UserToken;
 use JR\Tracker\Entity\User\Implementation\UserVerifyEmail;
@@ -49,22 +48,10 @@ class UserRepository implements UserRepositoryInterface
 
       // Insert user role types
       $userRoleTypes = $this->entityManagerService->getRepository(UserRoleType::class)
-        ->findBy(
-          [
-            'value' =>
-              [
-                UserRoleTypeEnum::EDITOR->value,
-              ],
-          ]
-        );
+        ->findBy(['value' => [UserRoleTypeEnum::EDITOR->value]]);
 
-      foreach ($userRoleTypes as $item) {
-        $userRole = new UserRole();
-        $userRole
-          ->setUser($user)
-          ->setUserRoleType($item);
-
-        $this->entityManagerService->persist($userRole);
+      foreach ($userRoleTypes as $roleType) {
+        $user->getUserRoleTypes()->add($roleType);
       }
 
       $this->entityManagerService->flush();
@@ -98,10 +85,49 @@ class UserRepository implements UserRepositoryInterface
     $this->entityManagerService->sync($userLogHistory);
   }
 
+  public function checkAndRestrictLogin(DomainContextEnum $domain, UserInterface $user): void
+  {
+    $since = new \DateTimeImmutable('-15 minutes');
+
+    $lastSuccess = $this->entityManagerService->getRepository(UserLoginHistory::class)
+      ->createQueryBuilder('h')
+      ->select('MAX(h.loginAttemptAt)')
+      ->where('h.user = :user')
+      ->andWhere('h.context = :context')
+      ->andWhere('h.isSuccessful = true')
+      ->andWhere('h.loginAttemptAt >= :since')
+      ->setParameter('user', $user)
+      ->setParameter('context', $domain->value)
+      ->setParameter('since', $since)
+      ->getQuery()
+      ->getSingleScalarResult();
+
+    $countSince = $lastSuccess ? new \DateTimeImmutable($lastSuccess) : $since;
+
+    $failedCount = (int) $this->entityManagerService->getRepository(UserLoginHistory::class)
+      ->createQueryBuilder('h')
+      ->select('COUNT(h.idUserLoginHistory)')
+      ->where('h.user = :user')
+      ->andWhere('h.context = :context')
+      ->andWhere('h.isSuccessful = false')
+      ->andWhere('h.loginAttemptAt > :countSince')
+      ->setParameter('user', $user)
+      ->setParameter('context', $domain->value)
+      ->setParameter('countSince', $countSince)
+      ->getQuery()
+      ->getSingleScalarResult();
+
+    if ($failedCount >= 10) {
+      $user->setLoginRestrictedUntil($domain, new \DateTime('+15 minutes'));
+      $this->entityManagerService->flush();
+    }
+  }
+
   public function getRoleByIdUser(string $idUser): array
   {
-    return $this->entityManagerService->getRepository(UserRole::class)
-      ->findBy(['user' => $idUser]);
+    $user = $this->entityManagerService->getRepository(User::class)->find($idUser);
+
+    return $user ? $user->getUserRoleTypes()->toArray() : [];
   }
 
   public function refreshTokenExists(string $refreshToken): bool
