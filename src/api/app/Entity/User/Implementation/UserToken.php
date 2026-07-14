@@ -36,6 +36,9 @@ class UserToken implements UserTokenInterface
   #[Column(type: 'datetime')]
   private \DateTime $expiresAt;
 
+  #[Column(type: 'boolean')]
+  private bool $persistent;
+
   #[ManyToOne(inversedBy: 'userToken', targetEntity: User::class)]
   #[JoinColumn(name: 'idUser', referencedColumnName: 'idUser', nullable: false)]
   private User $user;
@@ -66,6 +69,11 @@ class UserToken implements UserTokenInterface
     return $this->expiresAt;
   }
 
+  public function getPersistent(): bool
+  {
+    return $this->persistent;
+  }
+
   // Setters
   public function setUser(UserInterface $user): self
   {
@@ -92,6 +100,13 @@ class UserToken implements UserTokenInterface
   public function setExpiresAt(\DateTime $expiresAt): self
   {
     $this->expiresAt = $expiresAt;
+
+    return $this;
+  }
+
+  public function setPersistent(bool $persistent): self
+  {
+    $this->persistent = $persistent;
 
     return $this;
   }
