@@ -12,7 +12,7 @@ interface AuthStrategyInterface
 {
   public function getTokenConfig(): TokenConfig;
 
-  public function getCookieConfig(?bool $persistLogin = false): AuthCookieConfig;
+  public function getCookieConfig(?bool $persistLogin = false, ?\DateTime $fixedExpiresAt = null): AuthCookieConfig;
 
   public function verifyUser(?UserInterface $user, string $password): void;
 }

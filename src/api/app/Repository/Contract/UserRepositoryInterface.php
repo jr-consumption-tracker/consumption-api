@@ -28,13 +28,15 @@ interface UserRepositoryInterface
 
   public function deleteRefreshTokes(string $idUser, DomainContextEnum $domain): void;
 
-  public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt): void;
+  public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt, bool $persistent): void;
 
   public function getByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserInterface;
 
+  public function getUserTokenByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserTokenInterface;
+
   public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null;
 
-  public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt): void;
+  public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt, bool $persistent): void;
 
   public function deleteRefreshToken(string $idUser, DomainContextEnum $domain): void;
 

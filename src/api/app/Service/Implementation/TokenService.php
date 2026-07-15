@@ -42,13 +42,13 @@ class TokenService implements TokenServiceInterface
     );
   }
 
-  public function createRefreshToken(UserInterface $user, TokenConfig $config): string
+  public function createRefreshToken(UserInterface $user, TokenConfig $config, int $expiresAtTimestamp): string
   {
 
     $payload = [
       'uuid' => $user->getUuid(),
       'email' => $user->getEmail(),
-      'exp' => $config->expRefresh,
+      'exp' => $expiresAtTimestamp,
     ];
 
     return JWT::encode(

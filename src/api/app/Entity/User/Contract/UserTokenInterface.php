@@ -15,4 +15,8 @@ interface UserTokenInterface
   public function setExpiresAt(\DateTime $expiresAt): self;
 
   public function getExpiresAt(): \DateTime;
+
+  public function getPersistent(): bool;
+
+  public function setPersistent(bool $persistent): self;
 }

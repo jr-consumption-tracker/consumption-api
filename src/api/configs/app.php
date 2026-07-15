@@ -45,6 +45,7 @@ return [
   'token' => [
     'exp_access' => time() + $_ENV['TOKEN_EXP_ACCESS'] ?? 0,
     'exp_refresh' => time() + $_ENV['TOKEN_EXP_REFRESH'] ?? 0,
+    'exp_refresh_session' => time() + $_ENV['TOKEN_EXP_REFRESH_SESSION'] ?? 0,
     'algorithm' => 'HS256',
     'key_access' => $_ENV['TOKEN_KEY_ACCESS'],
     'key_refresh' => $_ENV['TOKEN_KEY_REFRESH'],
@@ -52,6 +53,7 @@ return [
   'admin_token' => [
     'exp_access' => time() + $_ENV['ADMIN_TOKEN_EXP_ACCESS'] ?? 0,
     'exp_refresh' => time() + $_ENV['ADMIN_TOKEN_EXP_REFRESH'] ?? 0,
+    'exp_refresh_session' => time() + $_ENV['ADMIN_TOKEN_EXP_REFRESH_SESSION'] ?? 0,
     'algorithm' => 'HS256',
     'key_access' => $_ENV['ADMIN_TOKEN_KEY_ACCESS'],
     'key_refresh' => $_ENV['ADMIN_TOKEN_KEY_REFRESH'],
