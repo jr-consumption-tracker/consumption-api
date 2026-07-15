@@ -151,6 +151,7 @@ return [
   TokenConfig::class => fn(Config $config) => new TokenConfig(
     $config->get('token.exp_access'),
     $config->get('token.exp_refresh'),
+    $config->get('token.exp_refresh_session'),
     $config->get('token.algorithm'),
     $config->get('token.key_access'),
     $config->get('token.key_refresh')
@@ -158,6 +159,7 @@ return [
   AdminTokenConfig::class => fn(Config $config) => new AdminTokenConfig(
     (int) $config->get('admin_token.exp_access'),
     (int) $config->get('admin_token.exp_refresh'),
+    (int) $config->get('admin_token.exp_refresh_session'),
     $config->get('admin_token.algorithm'),
     $config->get('admin_token.key_access'),
     $config->get('admin_token.key_refresh')

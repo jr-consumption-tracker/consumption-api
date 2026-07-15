@@ -29,14 +29,18 @@ class WebAuthStrategy implements AuthStrategyInterface
     return $this->tokenConfig;
   }
 
-  public function getCookieConfig(?bool $persistLogin = false): AuthCookieConfig
+  public function getCookieConfig(?bool $persistLogin = false, ?\DateTime $fixedExpiresAt = null): AuthCookieConfig
   {
+    $expires = $persistLogin
+      ? $this->tokenConfig->expRefresh
+      : ($fixedExpiresAt?->getTimestamp() ?? $this->tokenConfig->expRefreshSession);
+
     return new AuthCookieConfig(
       $this->authCookieConfig->name,
       $this->authCookieConfig->secure,
       $this->authCookieConfig->httpOnly,
       $this->authCookieConfig->sameSite,
-      $persistLogin ? $this->authCookieConfig->expires : 0, // 0 = session
+      $expires,
       $this->authCookieConfig->path
     );
   }

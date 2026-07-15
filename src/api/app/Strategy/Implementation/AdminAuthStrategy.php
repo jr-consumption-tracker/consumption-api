@@ -31,15 +31,19 @@ class AdminAuthStrategy implements AuthStrategyInterface
     return $this->tokenConfig;
   }
 
-  public function getCookieConfig(?bool $persistLogin = false): AuthCookieConfig
+  public function getCookieConfig(?bool $persistLogin = false, ?\DateTime $fixedExpiresAt = null): AuthCookieConfig
   {
     // For admin, we might always want session cookie, or respect persistLogin
+    $expires = $persistLogin
+      ? $this->tokenConfig->expRefresh
+      : ($fixedExpiresAt?->getTimestamp() ?? $this->tokenConfig->expRefreshSession);
+
     return new AuthCookieConfig(
       $this->authCookieConfig->name,
       $this->authCookieConfig->secure,
       $this->authCookieConfig->httpOnly,
       $this->authCookieConfig->sameSite,
-      $persistLogin ? $this->authCookieConfig->expires : 0,
+      $expires,
       $this->authCookieConfig->path
     );
   }

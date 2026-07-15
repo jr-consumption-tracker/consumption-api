@@ -21,7 +21,7 @@ interface TokenServiceInterface
    */
   public function createAccessToken(UserInterface $user, array $roles, TokenConfig $config): string;
 
-  public function createRefreshToken(UserInterface $user, TokenConfig $config): string;
+  public function createRefreshToken(UserInterface $user, TokenConfig $config, int $expiresAtTimestamp): string;
 
   public function verifyJWT(ServerRequestInterface $request, RequestHandlerInterface $handler, TokenConfig $config): ResponseInterface;
 

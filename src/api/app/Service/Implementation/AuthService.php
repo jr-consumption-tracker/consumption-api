@@ -23,6 +23,7 @@ use JR\Tracker\Service\Contract\TokenServiceInterface;
 use JR\Tracker\Service\Contract\VerifyEmailServiceInterface;
 use JR\Tracker\Shared\Helper\UserRoleHelper;
 use JR\Tracker\Strategy\Contract\AuthStrategyFactoryInterface;
+use JR\Tracker\Strategy\Contract\AuthStrategyInterface;
 
 class AuthService implements AuthServiceInterface
 {
@@ -100,34 +101,31 @@ class AuthService implements AuthServiceInterface
     $this->logout($user, $domain, $authCookieConfig);
   }
 
-  public function attemptRefreshToken(array $credentials, DomainContextEnum $domain): array
+  public function attemptRefreshToken(DomainContextEnum $domain): array
   {
-    $persistLogin = (bool) ($credentials['persistLogin']);
-
     $strategy = $this->authStrategyFactory->create($domain);
-    $authCookieConfig = $strategy->getCookieConfig($persistLogin);
     $tokenConfig = $strategy->getTokenConfig();
 
-    $result = $this->verifyRefreshToken($authCookieConfig, $tokenConfig, $domain);
-
-
+    $result = $this->verifyRefreshToken($strategy, $tokenConfig, $domain);
 
     return $this->refreshToken(
       $result['user'],
       $result['refreshToken'],
-      $authCookieConfig,
+      $result['authCookieConfig'],
       $tokenConfig,
       $domain,
+      $result['persistent'],
+      $result['expiresAt'],
     );
   }
 
   #region Private methods
-
   private function login(UserInterface $user, bool $persistLogin, DomainContextEnum $domain): array
   {
     $strategy = $this->authStrategyFactory->create($domain);
-    $authCookieConfig = $strategy->getCookieConfig($persistLogin);
     $tokenConfig = $strategy->getTokenConfig();
+    $expiresAt = (new \DateTime())->setTimestamp($persistLogin ? $tokenConfig->expRefresh : $tokenConfig->expRefreshSession);
+    $authCookieConfig = $strategy->getCookieConfig($persistLogin, $expiresAt);
 
     $tokenCookie = $this->cookieService->get($authCookieConfig->name);
 
@@ -153,7 +151,7 @@ class AuthService implements AuthServiceInterface
 
     $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
     $roleValueArray = UserRoleHelper::getRoleValueArrayFromUserRoles($userRoles);
-    $refreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig);
+    $refreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig, $expiresAt->getTimestamp());
 
     $this->cookieService->set(
       $authCookieConfig->name,
@@ -164,7 +162,8 @@ class AuthService implements AuthServiceInterface
       $user,
       $refreshToken,
       $domain,
-      (new \DateTime())->setTimestamp($tokenConfig->expRefresh)
+      $expiresAt,
+      $persistLogin
     );
 
     if (!$this->sessionService->isActive()) {
@@ -195,17 +194,25 @@ class AuthService implements AuthServiceInterface
     }
   }
 
-  public function verifyRefreshToken(AuthCookieConfig $authCookieConfig, TokenConfig $tokenConfig, DomainContextEnum $domain): array
+  public function verifyRefreshToken(AuthStrategyInterface $strategy, TokenConfig $tokenConfig, DomainContextEnum $domain): array
   {
-    $refreshToken = $this->cookieService->get($authCookieConfig->name);
+    $lookupCookieConfig = $strategy->getCookieConfig(false);
+    $refreshToken = $this->cookieService->get($lookupCookieConfig->name);
 
     if (!$refreshToken) {
       throw new ValidationException(['unauthorized' => ['noCookie']], HttpStatusCode::UNAUTHORIZED->value);
     }
 
+    $userToken = $this->userRepository->getUserTokenByRefreshToken($refreshToken, $domain);
+    $persistent = $userToken?->getPersistent() ?? false;
+    $existingExpiresAt = $userToken?->getExpiresAt();
+    // $fixedExpiresAt is only consumed by getCookieConfig()'s persistent=false branch; passing it
+    // for persistent=true would misleadingly imply it's used there too.
+    $authCookieConfig = $strategy->getCookieConfig($persistent, $persistent ? null : $existingExpiresAt);
+
     $cookieConfigData = CookieConfigData::fromAuthCookieConfig($authCookieConfig);
     $this->cookieService->delete($authCookieConfig->name, $cookieConfigData);
-    $user = $this->userRepository->getByRefreshToken($refreshToken, $domain);
+    $user = $userToken?->getUser();
 
     // Detected refresh token reuse!
     if (!$user) {
@@ -223,13 +230,23 @@ class AuthService implements AuthServiceInterface
       throw new ValidationException(['forbidden' => ['noUser']], HttpStatusCode::FORBIDDEN->value);
     }
 
+    // Stored expiry cap reached: reject and clean up, regardless of persistent status
+    if ($existingExpiresAt !== null && $existingExpiresAt < new \DateTime()) {
+      $this->userRepository->deleteRefreshToken($user->getUuid(), $domain);
+
+      throw new ValidationException(['forbidden' => ['expiredToken']], HttpStatusCode::FORBIDDEN->value);
+    }
+
     return [
       'user' => $user,
       'refreshToken' => $refreshToken,
+      'authCookieConfig' => $authCookieConfig,
+      'persistent' => $persistent,
+      'expiresAt' => $existingExpiresAt,
     ];
   }
 
-  private function refreshToken(UserInterface $user, string $refreshToken, AuthCookieConfig $authCookieConfig, TokenConfig $tokenConfig, DomainContextEnum $domain): array
+  private function refreshToken(UserInterface $user, string $refreshToken, AuthCookieConfig $authCookieConfig, TokenConfig $tokenConfig, DomainContextEnum $domain, bool $persistent, ?\DateTime $existingExpiresAt): array
   {
     $decoded = $this->tokenService->decodeToken($refreshToken, $tokenConfig->keyRefresh, $tokenConfig->algorithm);
 
@@ -244,12 +261,18 @@ class AuthService implements AuthServiceInterface
     $userRoles = $this->userRepository->getRoleByIdUser($user->getUuid());
     $roleValueArray = UserRoleHelper::getRoleValueArrayFromUserRoles($userRoles);
     $accessToken = $this->tokenService->createAccessToken($user, $roleValueArray, $tokenConfig);
-    $newRefreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig);
+
+    $newExpiresAt = $persistent
+      ? (new \DateTime())->setTimestamp($tokenConfig->expRefresh)
+      : $existingExpiresAt ?? (new \DateTime())->setTimestamp($tokenConfig->expRefreshSession);
+
+    $newRefreshToken = $this->tokenService->createRefreshToken($user, $tokenConfig, $newExpiresAt->getTimestamp());
 
     $this->userRepository->updateRefreshToken(
       $refreshToken,
       $newRefreshToken,
-      (new \DateTime())->setTimestamp($tokenConfig->expRefresh)
+      $newExpiresAt,
+      $persistent
     );
 
     $this->cookieService->set(
@@ -269,7 +292,5 @@ class AuthService implements AuthServiceInterface
       'accessToken' => $accessToken,
     ];
   }
-
-
-  #region
+  #endregion
 }
