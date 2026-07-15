@@ -151,7 +151,7 @@ class UserRepository implements UserRepositoryInterface
     $this->entityManagerService->flush();
   }
 
-  public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt): void
+  public function createRefreshToken(UserInterface $user, string $refreshToken, DomainContextEnum $domain, \DateTime $expiresAt, bool $persistent): void
   {
     $userToken = new UserToken();
 
@@ -159,6 +159,7 @@ class UserRepository implements UserRepositoryInterface
       ->setDomain($domain)
       ->setRefreshToken($refreshToken)
       ->setExpiresAt($expiresAt)
+      ->setPersistent($persistent)
       ->setUser($user);
 
     $this->entityManagerService->sync($userToken);
@@ -176,6 +177,17 @@ class UserRepository implements UserRepositoryInterface
         ?->getUser() ?? null;
   }
 
+  public function getUserTokenByRefreshToken(string $refreshToken, DomainContextEnum $domain): ?UserTokenInterface
+  {
+    return $this->entityManagerService->getRepository(UserToken::class)
+      ->findOneBy(
+        [
+          'domain' => $domain->value,
+          'refreshToken' => $refreshToken,
+        ]
+      );
+  }
+
   public function getRefreshToken(string $idUser, DomainContextEnum $domain): UserTokenInterface|null
   {
     return $this->entityManagerService->getRepository(UserToken::class)
@@ -185,7 +197,7 @@ class UserRepository implements UserRepositoryInterface
       ]);
   }
 
-  public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt): void
+  public function updateRefreshToken(string $oldToken, string $newToken, \DateTime $expiresAt, bool $persistent): void
   {
     $userToken = $this->entityManagerService->getRepository(UserToken::class)
       ->findOneBy(['refreshToken' => $oldToken]);
@@ -193,7 +205,8 @@ class UserRepository implements UserRepositoryInterface
     if ($userToken) {
       $userToken
         ->setRefreshToken($newToken)
-        ->setExpiresAt($expiresAt);
+        ->setExpiresAt($expiresAt)
+        ->setPersistent($persistent);
       $this->entityManagerService->sync($userToken);
     }
   }

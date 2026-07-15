@@ -76,23 +76,17 @@ class AuthController
   /**
    * Handles token refresh request.
    *
-   * Refreshes the authentication token for the current user session based on provided
-   * query parameters, specifically the persistLogin flag to maintain session persistence.
+   * Refreshes the authentication token for the current user session, using the
+   * persistence behavior stored server-side at login time.
    *
-   * @param Request $request HTTP request containing query parameters (persistLogin)
+   * @param Request $request HTTP request
    * @param Response $response HTTP response
    * @return Response JSON response with token refresh result
    * @author Jan Ribka
    */
   public function refreshToken(Request $request, Response $response): Response
   {
-    $parseBoolean = BooleanHelper::parse();
-
-    $queryParams = $request->getQueryParams();
-    $persistLogin = $parseBoolean($queryParams['persistLogin'] ?? false);
-    $credentials = ['persistLogin' => $persistLogin];
-
-    $result = $this->authService->attemptRefreshToken($credentials, DomainContextEnum::ADMIN);
+    $result = $this->authService->attemptRefreshToken(DomainContextEnum::ADMIN);
 
     return $this->responseFormatter->asJson($response, $result);
   }

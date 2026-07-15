@@ -127,7 +127,10 @@ class RegisterUserTest extends TestCase
       $this->controller->register($request, $response);
       $this->fail('ValidationException was expected for ' . $description);
     } catch (ValidationException $e) {
-      $errors = $e->errors;
+      // Matches the shape read by the frontend's useRegisterForm.ts: data.validationError[0][field][0].
+      // The 'general' => 'registrationFailed' case is thrown separately, outside the validationError
+      // wrapper, and keeps the old flat shape - it was not affected by the error-shape migration.
+      $errors = isset($e->errors['validationError']) ? $e->errors['validationError'][0] : $e->errors;
       foreach ($expectedErrors as $field => $message) {
         $this->assertArrayHasKey($field, $errors, "Field '$field' missing in errors for " . $description);
         $this->assertContains($message, $errors[$field], "Message '$message' not found for field '$field'");
@@ -145,12 +148,12 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => '',
         ],
         'expectedErrors' => [
-          'email' => 'emailRequired',
-          'password' => 'passwordRequired',
-          'confirmPassword' => 'confirmPasswordRequired',
+          'email' => 'required',
+          'password' => 'required',
+          'confirmPassword' => 'required',
         ],
         'description' => 'Empty mandatory fields',
-        'expectedErrorMessage' => 'emailRequired, passwordRequired, confirmPasswordRequired',
+        'expectedErrorMessage' => 'required, required, required',
       ],
       'invalid_email_format' => [
         'invalidData' => [
@@ -159,10 +162,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'Password123!',
         ],
         'expectedErrors' => [
-          'email' => 'emailInvalid',
+          'email' => 'email.invalid',
         ],
         'description' => 'Email without @ or domain',
-        'expectedErrorMessage' => 'emailInvalid',
+        'expectedErrorMessage' => 'email.invalid',
       ],
       'invalid_email_tld' => [
         'invalidData' => [
@@ -171,10 +174,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'Password123!',
         ],
         'expectedErrors' => [
-          'email' => 'emailInvalid',
+          'email' => 'email.invalid',
         ],
         'description' => 'Email with short TLD (.c)',
-        'expectedErrorMessage' => 'emailInvalid',
+        'expectedErrorMessage' => 'email.invalid',
       ],
       'email_already_exists' => [
         'invalidData' => [
@@ -195,10 +198,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'P1!',
         ],
         'expectedErrors' => [
-          'password' => 'passwordMinLength|8',
+          'password' => 'password.tooShort',
         ],
         'description' => 'Password under 8 characters',
-        'expectedErrorMessage' => 'passwordMinLength|8',
+        'expectedErrorMessage' => 'password.tooShort',
       ],
       'password_no_lowercase' => [
         'invalidData' => [
@@ -207,10 +210,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'PASSWORD123!',
         ],
         'expectedErrors' => [
-          'password' => 'passwordLoweCase',
+          'password' => 'password.lowercase',
         ],
         'description' => 'Password without lowercase letter',
-        'expectedErrorMessage' => 'passwordLoweCase',
+        'expectedErrorMessage' => 'password.lowercase',
       ],
       'password_no_uppercase' => [
         'invalidData' => [
@@ -219,10 +222,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'password123!',
         ],
         'expectedErrors' => [
-          'password' => 'passwordUpperCase',
+          'password' => 'password.uppercase',
         ],
         'description' => 'Password without uppercase letter',
-        'expectedErrorMessage' => 'passwordUpperCase',
+        'expectedErrorMessage' => 'password.uppercase',
       ],
       'password_no_numbers' => [
         'invalidData' => [
@@ -231,10 +234,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'Password!',
         ],
         'expectedErrors' => [
-          'password' => 'passwordNumbers',
+          'password' => 'password.number',
         ],
         'description' => 'Password without numbers',
-        'expectedErrorMessage' => 'passwordNumbers',
+        'expectedErrorMessage' => 'password.number',
       ],
       'passwords_dont_match' => [
         'invalidData' => [
@@ -243,10 +246,10 @@ class RegisterUserTest extends TestCase
           'confirmPassword' => 'Mismatched123!',
         ],
         'expectedErrors' => [
-          'confirmPassword' => 'confirmPasswordOneOf',
+          'confirmPassword' => 'password.mismatch',
         ],
         'description' => 'Password and confirmation do not match',
-        'expectedErrorMessage' => 'confirmPasswordOneOf',
+        'expectedErrorMessage' => 'password.mismatch',
       ],
     ];
   }
