@@ -1,3 +1,16 @@
+## 0.4.1
+
+<!-- generováno porovnáním v0.4.0..upstream/main -->
+
+_15. 7. 2026_
+
+Velké díky 1 přispěvateli, který umožnil toto vydání. Zde je přehled změn ✨:
+
+- Chore/update composer (#112) @JanRibka
+- chore: release v0.4.0 (#111) @JanRibka
+
+Všichni přispěvatelé tohoto vydání v abecedním pořadí: @JanRibka
+
 ## 0.4.0
 
 <!-- generováno porovnáním v0.3.0..upstream/main -->
