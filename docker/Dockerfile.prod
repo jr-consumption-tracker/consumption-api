@@ -13,6 +13,12 @@ RUN composer install \
 
 FROM php:8.4-fpm AS runtime
 
+# Verze appky patri ke kodu, ne ke konkretnimu prostredi (dev/prod) - bere
+# se z composer.json pri buildu, at neni potreba ji rucne synchronizovat
+# do k8s Secretu pri kazdem releasu.
+ARG APP_VERSION=0.0.0
+ENV APP_VERSION=${APP_VERSION}
+
 RUN apt-get update && apt-get install -y --no-install-recommends \
     libpng-dev \
     libonig-dev \
