@@ -10,7 +10,7 @@ require __DIR__ . '/constants/regexes.php';
 require __DIR__ . '/configs/routes/parts/parts.php';
 
 $dotenv = Dotenv::createImmutable(__DIR__);
-$dotenv->load();
+$dotenv->safeLoad();
 
 require CONFIG_PATH . '/allowed_origins.php';
 

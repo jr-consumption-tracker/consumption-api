@@ -1,0 +1,41 @@
+# syntax=docker/dockerfile:1
+
+FROM composer:2 AS build
+WORKDIR /app
+COPY src/api/ .
+RUN composer install \
+    --no-dev \
+    --no-interaction \
+    --no-progress \
+    --prefer-dist \
+    --optimize-autoloader \
+    --classmap-authoritative
+
+FROM php:8.4-fpm AS runtime
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    libpng-dev \
+    libonig-dev \
+    libxml2-dev \
+    libzip-dev \
+    unzip \
+    && docker-php-ext-install pdo_mysql mysqli mbstring exif pcntl bcmath gd opcache zip \
+    && pecl install redis \
+    && docker-php-ext-enable redis \
+    && apt-get purge -y --auto-remove libpng-dev libonig-dev libxml2-dev libzip-dev unzip \
+    && rm -rf /var/lib/apt/lists/*
+
+COPY docker/prod/opcache.ini "${PHP_INI_DIR}/conf.d/opcache.ini"
+COPY docker/prod/php-prod.ini "${PHP_INI_DIR}/conf.d/zz-prod.ini"
+COPY docker/prod/fpm-ping.conf /usr/local/etc/php-fpm.d/zz-ping.conf
+
+WORKDIR /var/www/html/api
+
+COPY --from=build --chown=www-data:www-data /app .
+RUN mkdir -p storage/logs && chown www-data:www-data storage/logs
+
+USER www-data
+
+EXPOSE 9000
+
+CMD ["php-fpm"]

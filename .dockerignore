@@ -3,6 +3,11 @@
 README.md
 .idea/
 .vscode/
-src/vendor/
-src/.env
-src/storage/logs/
+src/api/vendor/
+src/api/.env
+src/api/.env.*
+src/api/storage/logs/
+src/api/storage/clockwork/
+src/api/storage/cache/*
+!src/api/storage/cache/.gitignore
+src/api/.phpunit.result.cache
