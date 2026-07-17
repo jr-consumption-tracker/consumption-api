@@ -73,7 +73,7 @@ jobs:
 
       - name: Spuštění PHPStan (Static Analysis)
         working-directory: src/api
-        run: vendor/bin/phpstan analyse --no-progress
+        run: vendor/bin/phpstan analyse app --no-progress
 
       - name: Spuštění testů
         working-directory: src/api
