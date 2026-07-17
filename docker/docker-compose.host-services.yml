@@ -1,0 +1,63 @@
+name: tracker-host-services
+
+# Bezi primo na homeserveru (mimo k3s) a poskytuje MySQL + Redis
+# pro aplikace nasazene v k3s "dev" namespace.
+# Pouzij: docker compose -f docker-compose.host-services.yml --env-file host-services.env up -d
+
+services:
+  db:
+    image: mysql:8.0
+    container_name: consumption-tracker-mysql
+    restart: unless-stopped
+    ports:
+      - "3307:3306"
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-consumption_dev}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+    volumes:
+      - db_data:/var/lib/mysql
+    networks:
+      - host-services
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-p${MYSQL_ROOT_PASSWORD}",
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  redis:
+    image: redis:7-alpine
+    container_name: consumption-tracker-redis
+    restart: unless-stopped
+    ports:
+      - "6380:6379"
+    command: redis-server --requirepass ${REDIS_PASSWORD}
+    volumes:
+      - redis_data:/data
+    networks:
+      - host-services
+    healthcheck:
+      test: ["CMD", "redis-cli", "-a", "${REDIS_PASSWORD}", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+networks:
+  host-services:
+    driver: bridge
+
+volumes:
+  db_data:
+  redis_data:
