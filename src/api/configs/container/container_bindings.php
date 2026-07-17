@@ -111,10 +111,12 @@ return [
     #endregion
 
     #region Database
-  EntityManagerInterface::class => function (Config $config) {
+  EntityManagerInterface::class => function (Config $config, RedisAdapter $redisAdapter) {
     $ormConfig = ORMSetup::createAttributeMetadataConfiguration(
       $config->get('doctrine.entity_dir'),
       $config->get('doctrine.dev_mode'),
+      null,
+      $redisAdapter,
     );
 
     $ormConfig->enableNativeLazyObjects(true);
