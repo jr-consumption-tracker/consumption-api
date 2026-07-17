@@ -117,7 +117,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Scan image na zranitelnosti (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: consumption-api:test
           format: table
@@ -176,7 +176,7 @@ jobs:
           cache-to: type=gha,mode=max
 
       - name: Scan image na zranitelnosti (Trivy)
-        uses: aquasecurity/trivy-action@0.28.0
+        uses: aquasecurity/trivy-action@v0.36.0
         with:
           image-ref: ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.image_tag }}
           format: table
