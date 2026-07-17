@@ -11,6 +11,44 @@ Databáze (MySQL, Redis) běží mimo cluster, přímo v Dockeru na hostu.
 
 ---
 
+## Rychlý přístup (pro časté použití)
+
+Instalace obojího je popsaná níže (sekce 9 a 13) — tohle je jen stručná referenční kartička,
+ať to nemusíš pokaždé hledat.
+
+### ArgoCD UI
+
+```bash
+# na serveru — nech bezet, dokud UI potrebujes otevrene
+sudo kubectl port-forward svc/argocd-server -n argocd 8090:443 --address 0.0.0.0
+
+# heslo (pokud sis ho neulozil pri prvni instalaci)
+kubectl -n argocd get secret argocd-initial-admin-secret -o jsonpath="{.data.password}" | base64 -d
+```
+
+Pak v prohlížeči `https://IP_SERVERU:8090`, přihlásit se jako `admin`. Certifikát je
+self-signed, potvrď výjimku ("Advanced" → "Proceed").
+
+> Pokud je port `8090` obsazený, zkontroluj `sudo lsof -i :8090` a použij jiný (`8091`...).
+
+### phpMyAdmin
+
+phpMyAdmin poslouchá jen na `127.0.0.1:8081` na serveru (ne veřejně) — přístup přes SSH tunel:
+
+```bash
+# na svem laptopu
+ssh -L 8081:localhost:8081 honza@192.168.0.50
+```
+
+Pak v prohlížeči na laptopu `http://localhost:8081`. Přihlas se `root` + heslo z
+`MYSQL_ROOT_PASSWORD` v `host-services.env` na serveru
+(`~/api-tmp/docker/host-services.env`, nebo kdekoliv máš ten soubor uložený).
+
+> Tunel musí zůstat aktivní (terminál otevřený) po celou dobu, co v phpMyAdmin pracuješ —
+> zavřením terminálu se přístup ukončí.
+
+---
+
 ## 1. Instalace Ubuntu Server
 
 Při instalaci postupuj takto:
