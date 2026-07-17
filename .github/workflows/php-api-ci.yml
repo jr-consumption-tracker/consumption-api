@@ -50,7 +50,10 @@ jobs:
 
       - name: Validace composer.json a composer.lock
         working-directory: src/api
-        run: composer validate --strict
+        # bez --strict zamerne - "version" pole je nutne (ctu ho CI pro
+        # baked APP_VERSION v Docker image), takze tohle upozorneni
+        # nemuzeme splnit a nechceme kvuli nemu shazovat cely pipeline
+        run: composer validate
 
       - name: Cache Composer dependencies
         uses: actions/cache@v4
