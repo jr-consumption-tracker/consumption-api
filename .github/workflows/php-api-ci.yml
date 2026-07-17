@@ -187,4 +187,21 @@ jobs:
       - name: Push image do GHCR
         run: docker push ghcr.io/${{ github.repository }}:${{ steps.meta.outputs.image_tag }}
 
-      # Zápis nového image tagu do gitops repa přidáme jako další krok.
+      - name: Aktualizovat image tag v gitops repu (dev)
+        if: steps.meta.outputs.environment == 'dev'
+        run: |
+          git clone https://x-access-token:${{ secrets.GITOPS_REPO_TOKEN }}@github.com/jr-consumption-tracker/consumption-gitops.git gitops
+          cd gitops
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          sed -i "s|newTag: .*|newTag: ${{ steps.meta.outputs.image_tag }}|" apps/api/overlays/dev/kustomization.yaml
+          if git diff --quiet; then
+            echo "Tag se nezmenil, nic k commitnuti."
+            exit 0
+          fi
+          git add apps/api/overlays/dev/kustomization.yaml
+          git commit -m "Deploy api ${{ steps.meta.outputs.image_tag }} to dev"
+          git push
+
+      # Az bude existovat apps/api/overlays/prod, pridame stejny krok
+      # podmineny na steps.meta.outputs.environment == 'prod'.
