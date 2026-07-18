@@ -2,9 +2,20 @@
 
 This document focuses exclusively on managing database schema changes using Doctrine Migrations.
 
-## Running Migrations
+## Kde se dají migrace spouštět
 
-These commands apply versioned changes to your database schema.
+| Prostředí | Jak | Poznámka |
+|---|---|---|
+| Lokálně (Docker Compose) | `docker compose exec app ...` | appka běží ze zdrojáků, filesystem je zapisovatelný |
+| k3s dev/prod | `kubectl exec ...` | appka běží z Docker image, **`readOnlyRootFilesystem: true`** — příkazy, co jen čtou/mění databázi, fungují; příkazy, co **zapisují nové soubory** (`migrations:diff`, `migrations:generate`), tam nejdou |
+
+**Nové migrace se vždy vytváří jen lokálně** (`migrations:diff`/`migrations:generate`), commitnou do gitu a nasadí se normálně přes Docker image/CI — ne přímo na serveru. Na serveru se migrace jen **spouští** (`migrations:migrate` apod.), nikdy negeneruje.
+
+---
+
+## Lokálně (Docker Compose)
+
+Tyto příkazy spouštěj z hlavního adresáře, kde běží `docker compose`.
 
 ### Migrate to version (Up/Down)
 
@@ -39,21 +50,11 @@ sudo docker compose exec app php tracker migrations:execute Version2026012620393
 - `--dry-run`: Display SQL without executing.
 - `--write-sql=[path]`: Save SQL to a file.
 
----
-
-## Development & Maintenance
-
 ### Check Status
-
-Displays information about the current state of migrations.
 
 ```bash
 sudo docker compose exec app php tracker migrations:status
 ```
-
-**Parameters:**
-
-- `--show-versions`: List available migration versions and their status.
 
 ### Generate Diff
 
@@ -73,19 +74,11 @@ sudo docker compose exec app php tracker migrations:diff
 
 ### Generate Blank Migration
 
-Creates an empty migration file for manual SQL writing.
-
 ```bash
 sudo docker compose exec app php tracker migrations:generate
 ```
 
-**Parameters:**
-
-- `--namespace`: Specify a custom namespace for the migration class.
-
 ### Current Version
-
-Display the version currently applied to the database.
 
 ```bash
 sudo docker compose exec app php tracker migrations:current
@@ -93,16 +86,45 @@ sudo docker compose exec app php tracker migrations:current
 
 ### List All Migrations
 
-Shows a list of all migration versions available in the project.
-
 ```bash
 sudo docker compose exec app php tracker migrations:list
 ```
 
 ### Sync Metadata
 
-Synchronizes the migration metadata table with the available migration files.
-
 ```bash
 sudo docker compose exec app php tracker migrations:sync-metadata-storage
 ```
+
+---
+
+## Na serveru (k3s dev/prod)
+
+Stejné příkazy, jen `docker compose exec app` nahradíš `kubectl exec` do běžícího Podu.
+Namespace je `consumption-dev` (nebo `consumption-prod`, až bude existovat), kontejner
+uvnitř Podu se jmenuje `app`.
+
+```bash
+kubectl exec -n consumption-dev -it deploy/api -c app -- php tracker migrations:migrate
+kubectl exec -n consumption-dev -it deploy/api -c app -- php tracker migrations:status
+kubectl exec -n consumption-dev -it deploy/api -c app -- php tracker migrations:current
+kubectl exec -n consumption-dev -it deploy/api -c app -- php tracker migrations:execute Version20260126203937 --down
+```
+
+> ⚠️ **`migrations:diff` a `migrations:generate` na serveru nepůjdou** —
+> `readOnlyRootFilesystem: true` na `app` kontejneru zabraňuje zápisu nového souboru
+> migrace kamkoliv do image. To je záměr, ne chyba: nová migrace vzniká lokálně, jde
+> do gitu jako součást appky, a na server se dostane přes normální nasazení (build →
+> image → deploy), ne ručním zásahem na produkčním kontejneru.
+
+### Doporučený postup pro novou migraci
+
+1. Lokálně: `docker compose exec app php tracker migrations:diff`, zkontroluj vygenerovanou SQL
+2. Commitni migraci do gitu, PR do `develop`
+3. Appka se automaticky nasadí do dev (viz `CONTRIBUTING.md`) — **migrace se ale nespustí sama**, appka jen běží s novým kódem
+4. Spusť migraci ručně proti dev databázi (příkaz výše)
+5. Ověř appku, pak stejný postup zopakuj pro produkci (až bude existovat) — vlastní databáze, vlastní spuštění migrace, nikdy sdílené s dev
+
+> Proč se migrace nespouští automaticky při deployi? Schéma databáze je citlivá operace
+> (nevratná bez zálohy) — chceme mít vždy vědomou kontrolu nad tím, kdy přesně se spustí,
+> ne že se to stane jako vedlejší efekt běžného nasazení kódu.
