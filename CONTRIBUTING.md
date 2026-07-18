@@ -14,21 +14,22 @@ docker compose up -d
 
 ## Branch strategie
 
+Jedna integrační větev, žádná `develop`:
+
 ```
-feature/xxx, fix/xxx  → PR do develop
-develop                → beznej vyvoj, KAZDY merge automaticky nasadi appku do "dev" prostredi
-main                    → jen pres PR z develop, nikdy primo z feature branche
+feature/xxx, fix/xxx  → PR do main
+main                    → KAZDY merge automaticky nasadi appku do "dev" prostredi
 tag vX.Y.Z na main      → automaticky nasadi appku do "prod" prostredi (az bude hosting)
 ```
 
-- **Feature/fix větve** — vytváříš z `develop`, PR míří zpátky do `develop`. CI (testy,
+- **Feature/fix větve** — vytváříš z `main`, PR míří zpátky do `main`. CI (testy,
   PHPStan, Docker build test) proběhne na PR, appka se ale nikam nenasazuje.
-- **`develop`** — jakmile se do něj něco smerguje, CI automaticky postaví Docker image,
-  pošle ho do GHCR a **samo** upraví tag v `consumption-gitops` — appka v "dev" prostředí
-  (`https://spotreba-energie.local/api/`) se do pár minut aktualizuje bez jakéhokoliv
-  ručního zásahu. Žádné SSH na server, žádný ruční `kubectl apply`.
-- **`main`** — produkční větev. Dostává se do ní jen přes PR z `develop` (viz Krok 5 níže),
-  nikdy přímo. Sama o sobě nic nenasazuje — spouštěčem nasazení do produkce je až **tag**.
+- **`main`** — jakmile se do něj něco smerguje (bez tagu), CI automaticky postaví Docker
+  image, pošle ho do GHCR a **samo** upraví tag v `consumption-gitops` — appka v "dev"
+  prostředí (`https://spotreba-energie.local/api/`) se do pár minut aktualizuje bez
+  jakéhokoliv ručního zásahu. Žádné SSH na server, žádný ruční `kubectl apply`.
+- **Tag na `main`** (`vX.Y.Z`) — samostatný, vědomý krok navíc k běžnému merge (viz
+  "Vydávání nových verzí" níže). Spouštěčem nasazení do produkce je jen tag, ne merge.
 
 Jak přesně appka běží v Kubernetes (dev/prod rozdíly, jak funguje sdílený Docker image
 napříč prostředími) je popsané v `consumption-gitops` repu,
@@ -36,9 +37,9 @@ napříč prostředími) je popsané v `consumption-gitops` repu,
 
 ## Nasazování
 
-**Do dev prostředí:** automaticky, viz výše — stačí smergovat PR do `develop`.
+**Do dev prostředí:** automaticky, viz výše — stačí smergovat PR do `main`.
 
-**Do produkce (release):** merge do `main` + vytvoření tagu, viz sekce níže
+**Do produkce (release):** vytvoření tagu na `main`, viz sekce níže
 ("Vydávání nových verzí"). Dokud neexistuje produkční hosting, tag appku nikam
 nenasadí (jen postaví a otaguje image) — jakmile hosting bude, CI i gitops repo jsou
 na to už teď připravené (`overlays/prod/` bude potřeba jen založit, viz
@@ -81,9 +82,8 @@ git commit -am "chore: release v0.2.1"
 ```
 
 ### Krok 4: Push a Pull Request
-Release branch vytváříš z `develop` (musí obsahovat vše, co má jít do vydání). Nahraj
-změny a vytvoř Pull Request **do `main`** (výjimka z běžného pravidla "PR jde do
-develop" — tohle je právě ten okamžik, kdy se `develop` slučuje do `main`):
+Release branch vytváříš z `main` (žádná zvláštní výjimka — je to stejný postup jako
+u kteréhokoliv jiného PR, protože `main` je jediná integrační větev):
 ```bash
 git push origin feature/release-v0.2.1
 ```
