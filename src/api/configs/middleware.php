@@ -6,6 +6,7 @@ use Clockwork\Clockwork;
 use Clockwork\Support\Slim\ClockworkMiddleware;
 use JR\Tracker\Config;
 use JR\Tracker\Enum\AppEnvironmentEnum;
+use JR\Tracker\Middleware\SessionStartMiddleware;
 use JR\Tracker\Middleware\ValidationExceptionMiddleware;
 use JR\Tracker\Middleware\VerificationExceptionMiddleware;
 use Slim\App;
@@ -16,6 +17,10 @@ return function (App $app) {
 
   if ($config->get('csrf_enabled')) {
     $app->add('csrf');
+    // Slim spousti naposledy pridany middleware jako prvni, takze tohle
+    // zajisti, ze session bezi jeste pred CSRF Guardem (ten ji potrebuje
+    // jako storage).
+    $app->add(SessionStartMiddleware::class);
   }
 
   $app->add(VerificationExceptionMiddleware::class);

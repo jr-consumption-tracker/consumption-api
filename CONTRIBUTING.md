@@ -1,6 +1,48 @@
 # Contributing
 
-Tato sekce popisuje proces přispívání a vydávání nových verzí projektu.
+Tato sekce popisuje, jak vyvíjet, jak fungují branche, a jak se appka nasazuje/vydává.
+
+## Vývoj
+
+Appka lokálně běží přes Docker Compose (appka + Nginx, MySQL, Redis, phpMyAdmin, Mailhog,
+Xdebug) — kompletní příkazy jsou v [`DOCKER_COMMANDS.md`](DOCKER_COMMANDS.md). Rychlý start:
+
+```bash
+cd docker
+docker compose up -d
+```
+
+## Branch strategie
+
+```
+feature/xxx, fix/xxx  → PR do develop
+develop                → beznej vyvoj, KAZDY merge automaticky nasadi appku do "dev" prostredi
+main                    → jen pres PR z develop, nikdy primo z feature branche
+tag vX.Y.Z na main      → automaticky nasadi appku do "prod" prostredi (az bude hosting)
+```
+
+- **Feature/fix větve** — vytváříš z `develop`, PR míří zpátky do `develop`. CI (testy,
+  PHPStan, Docker build test) proběhne na PR, appka se ale nikam nenasazuje.
+- **`develop`** — jakmile se do něj něco smerguje, CI automaticky postaví Docker image,
+  pošle ho do GHCR a **samo** upraví tag v `consumption-gitops` — appka v "dev" prostředí
+  (`https://spotreba-energie.local/api/`) se do pár minut aktualizuje bez jakéhokoliv
+  ručního zásahu. Žádné SSH na server, žádný ruční `kubectl apply`.
+- **`main`** — produkční větev. Dostává se do ní jen přes PR z `develop` (viz Krok 5 níže),
+  nikdy přímo. Sama o sobě nic nenasazuje — spouštěčem nasazení do produkce je až **tag**.
+
+Jak přesně appka běží v Kubernetes (dev/prod rozdíly, jak funguje sdílený Docker image
+napříč prostředími) je popsané v `consumption-gitops` repu,
+[`docs/DEPLOYMENT_GUIDE.md`](https://github.com/jr-consumption-tracker/consumption-gitops/blob/main/docs/DEPLOYMENT_GUIDE.md).
+
+## Nasazování
+
+**Do dev prostředí:** automaticky, viz výše — stačí smergovat PR do `develop`.
+
+**Do produkce (release):** merge do `main` + vytvoření tagu, viz sekce níže
+("Vydávání nových verzí"). Dokud neexistuje produkční hosting, tag appku nikam
+nenasadí (jen postaví a otaguje image) — jakmile hosting bude, CI i gitops repo jsou
+na to už teď připravené (`overlays/prod/` bude potřeba jen založit, viz
+`DEPLOYMENT_GUIDE.md` sekce 7).
 
 ## Vydávání nových verzí (Release Process)
 
@@ -39,11 +81,13 @@ git commit -am "chore: release v0.2.1"
 ```
 
 ### Krok 4: Push a Pull Request
-Nahraj změny na svůj fork a vytvoř Pull Request do hlavní větve (`main`):
+Release branch vytváříš z `develop` (musí obsahovat vše, co má jít do vydání). Nahraj
+změny a vytvoř Pull Request **do `main`** (výjimka z běžného pravidla "PR jde do
+develop" — tohle je právě ten okamžik, kdy se `develop` slučuje do `main`):
 ```bash
 git push origin feature/release-v0.2.1
 ```
-1. Otevři Pull Request na GitHubu.
+1. Otevři Pull Request na GitHubu, cílová větev `main`.
 2. Počkej na CI/CD testy a review.
 3. **Zmerguj** PR do `main`.
 

@@ -37,6 +37,7 @@ class UserRoleType implements UserRoleTypeInterface
   private string $description;
 
   #[ManyToMany(targetEntity: User::class, mappedBy: 'userRoleTypes')]
+  /** @phpstan-ignore-next-line */
   private Collection $users;
 
   #[ManyToMany(targetEntity: UserPermission::class, cascade: ['persist'])]
