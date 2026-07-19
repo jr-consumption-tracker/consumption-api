@@ -17,13 +17,10 @@ return function (App $app) {
   $config = $container->get(Config::class);
 
   if ($config->get('csrf_enabled')) {
-    // Slim spousti naposledy pridany middleware jako prvni. Poradi provedeni
-    // (od outer po inner): SessionStart -> csrf Guard -> ExposeCsrfToken ->
-    // routa. Guard musi bezet pred ExposeCsrfTokenMiddleware (potrebuje jeho
-    // atributy csrf_name/csrf_value), a az po SessionStartMiddleware (ten mu
-    // dodava session jako storage).
-    $app->add(ExposeCsrfTokenMiddleware::class);
     $app->add('csrf');
+    // Slim spousti naposledy pridany middleware jako prvni, takze tohle
+    // zajisti, ze session bezi jeste pred CSRF Guardem (ten ji potrebuje
+    // jako storage).
     $app->add(SessionStartMiddleware::class);
   }
 
@@ -35,6 +32,16 @@ return function (App $app) {
   }
 
   $app->addBodyParsingMiddleware();
+
+  if ($config->get('csrf_enabled')) {
+    // Musi byt nejvic vnejsi vrstva (pridano tesne pred addErrorMiddleware),
+    // aby obalilo i Validation/VerificationExceptionMiddleware - ty vyjimky
+    // hlouběji v appce prevadi na Response, coz "prelétne" kolem cehokoliv
+    // vnitrniho. ExposeCsrfTokenMiddleware proto cte token primo z Guard
+    // instance (viz komentar v tom souboru), ne z $request atributu.
+    $app->add(ExposeCsrfTokenMiddleware::class);
+  }
+
   $app->addErrorMiddleware(
     (bool) $config->get('display_error_details'),
     (bool) $config->get('log_errors'),
