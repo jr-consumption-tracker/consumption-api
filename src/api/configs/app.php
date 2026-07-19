@@ -13,7 +13,16 @@ $boolean = function (mixed $value) {
   return false;
 };
 $appEnv = $_ENV['APP_ENV'] ?? AppEnvironmentEnum::Production->value;
-$appSnakeName = strtolower(str_replace(' ', '_', $_ENV['APP_NAME']));
+
+// Cookie/session names must stay pure ASCII (RFC 6265 token) - APP_NAME can contain
+// diacritics (e.g. "Spotřeba energie"), which would otherwise land raw in the cookie
+// name and get mangled differently across HTTP/2, proxies and PHP, breaking sessions.
+$appNameAscii = strtr(mb_strtolower($_ENV['APP_NAME'], 'UTF-8'), [
+  'á' => 'a', 'č' => 'c', 'ď' => 'd', 'é' => 'e', 'ě' => 'e', 'í' => 'i',
+  'ň' => 'n', 'ó' => 'o', 'ř' => 'r', 'š' => 's', 'ť' => 't', 'ú' => 'u',
+  'ů' => 'u', 'ý' => 'y', 'ž' => 'z',
+]);
+$appSnakeName = trim((string) preg_replace('/[^a-z0-9]+/', '_', $appNameAscii), '_');
 
 
 return [
