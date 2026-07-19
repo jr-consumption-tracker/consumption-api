@@ -6,6 +6,7 @@ use Clockwork\Clockwork;
 use Clockwork\Support\Slim\ClockworkMiddleware;
 use JR\Tracker\Config;
 use JR\Tracker\Enum\AppEnvironmentEnum;
+use JR\Tracker\Middleware\ExposeCsrfTokenMiddleware;
 use JR\Tracker\Middleware\SessionStartMiddleware;
 use JR\Tracker\Middleware\ValidationExceptionMiddleware;
 use JR\Tracker\Middleware\VerificationExceptionMiddleware;
@@ -16,10 +17,13 @@ return function (App $app) {
   $config = $container->get(Config::class);
 
   if ($config->get('csrf_enabled')) {
+    // Slim spousti naposledy pridany middleware jako prvni. Poradi provedeni
+    // (od outer po inner): SessionStart -> csrf Guard -> ExposeCsrfToken ->
+    // routa. Guard musi bezet pred ExposeCsrfTokenMiddleware (potrebuje jeho
+    // atributy csrf_name/csrf_value), a az po SessionStartMiddleware (ten mu
+    // dodava session jako storage).
+    $app->add(ExposeCsrfTokenMiddleware::class);
     $app->add('csrf');
-    // Slim spousti naposledy pridany middleware jako prvni, takze tohle
-    // zajisti, ze session bezi jeste pred CSRF Guardem (ten ji potrebuje
-    // jako storage).
     $app->add(SessionStartMiddleware::class);
   }
 

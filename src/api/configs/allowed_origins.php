@@ -16,7 +16,8 @@ if ($isDevelopment) {
   }
 
   header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE, OPTIONS");
-  header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization");
+  header("Access-Control-Allow-Headers: Origin, Content-Type, Accept, Authorization, csrf_name, csrf_value");
+  header("Access-Control-Expose-Headers: csrf_name, csrf_value");
   header("Access-Control-Allow-Credentials: true");
 
   if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
