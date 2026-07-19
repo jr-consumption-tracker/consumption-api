@@ -84,6 +84,18 @@ sudo docker compose exec app php tracker fixtures:load
 
 You will be prompted for confirmation before the fixtures are loaded. This command will overwrite existing data in the database with the fixture data.
 
+### On the server (k3s dev/prod)
+
+Same command, `docker compose exec app` replaced with `kubectl exec` into the running Pod
+(`-it` is required, not just `-i` — the confirmation prompt needs an interactive terminal):
+
+```bash
+sudo kubectl exec -n consumption-dev -it deploy/api -c app -- php tracker fixtures:load
+```
+
+⚠️ This purges and overwrites data in every table it touches — never run it against an
+environment with real data you want to keep.
+
 ### Prerequisites
 
 - Docker & Docker Compose
